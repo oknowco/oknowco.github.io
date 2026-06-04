@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>It's OK now to turn off the computer</title>
+<!-- v2: barrel distortion + controls -->
+
 <style>
   html, body {
     margin: 0;
@@ -14,7 +16,12 @@
   }
 
   body {
-    background: radial-gradient(ellipse at 30% 15%, #f8f6ed 0%, #eeeadc 45%, #ddd7c4 85%, #ccc5af 100%);
+    background:
+      radial-gradient(ellipse at 30% 15%,
+        #f8f6ed 0%,
+        #eeeadc 45%,
+        #ddd7c4 85%,
+        #ccc5af 100%);
     font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
     color: #dca67c;
     -webkit-font-smoothing: none;
@@ -32,9 +39,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.35s ease;
   }
 
+  /* WebGL canvas — holds the CRT image (text + scanlines + barrel curve).
+     Sits below the bezel cast-shadows so they correctly darken its edges. */
   .crt-canvas {
     position: absolute;
     inset: 0;
@@ -42,7 +50,6 @@
     height: 100%;
     display: block;
     z-index: 1;
-    transition: opacity 0.35s ease;
   }
 
   @media (max-width: 640px) {
@@ -52,6 +59,8 @@
     }
   }
 
+  /* DOM fallback — shown only when WebGL is unavailable.
+     The JS removes the `fallback-active` class once the canvas is rendering. */
   .msg {
     position: relative;
     z-index: 3;
@@ -61,7 +70,6 @@
     line-height: 1.2;
     padding: 0 1rem;
     display: none;
-    transition: opacity 0.35s ease;
   }
   .fallback-active .msg { display: block; }
 
@@ -79,10 +87,77 @@
     .mobile-only  { display: inline; }
   }
 
+  /* Effect control panel — hidden in production, re-show by setting
+     display: flex if you need to retune. */
   .controls {
     display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    max-width: calc(100vw - 48px);
+    background: #1a1a1d;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    border: 1px solid #3a3a40;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  }
+  .controls label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .controls input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+  }
+  .controls input[type="range"] {
+    width: 70px;
+    cursor: pointer;
+  }
+  .controls .val {
+    display: inline-block;
+    min-width: 36px;
+    text-align: left;
+    color: #9ad;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+  }
+  .controls button {
+    background: #2a2a30;
+    color: #fff;
+    border: 1px solid #4a4a55;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .controls button:hover {
+    background: #3a3a42;
+  }
+  .controls button.copied {
+    background: #2a4a2a;
+    border-color: #4a7a4a;
+  }
+  .controls .sep {
+    opacity: 0.3;
   }
 
+  /* Monitor power button — wide tab style that sits at the very bottom
+     of the bezel with rounded top corners, like a stubby button
+     protruding from the case bottom. */
   .power-btn {
     position: fixed;
     right: 2.2vw;
@@ -96,15 +171,24 @@
     border-bottom: none;
     padding: 0;
     cursor: pointer;
-    background: linear-gradient(180deg, #ddd6c2 0%, #d3cbb5 50%, #c6bea8 100%);
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    background:
+      linear-gradient(180deg,
+        #ddd6c2 0%,
+        #d3cbb5 50%,
+        #c6bea8 100%);
+    box-shadow:
+      /* Top inset shadow — case casts a small shadow on the button top */
+      inset 0 2px 3px rgba(0, 0, 0, 0.18),
+      /* Faint highlight along the bottom inside edge */
+      inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+      /* Thin dark line around the visible top + sides */
+      0 0 0 1px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
     transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
   }
-
   .power-btn::before {
     content: "⏻";
     font-size: clamp(16px, 3vh, 36px);
@@ -114,16 +198,24 @@
     font-family: "Apple Symbols", "Segoe UI Symbol", sans-serif;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
   }
-
   .power-btn:hover {
-    background: linear-gradient(180deg, #e2dcc8 0%, #d8d0ba 50%, #ccc4ae 100%);
+    background:
+      linear-gradient(180deg,
+        #e2dcc8 0%,
+        #d8d0ba 50%,
+        #ccc4ae 100%);
   }
-
   .power-btn:active {
     transform: translateY(1px);
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      inset 0 3px 5px rgba(0, 0, 0, 0.28),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.18),
+      0 0 0 1px rgba(0, 0, 0, 0.1);
   }
 
+  /* Power LED — small green indicator to the left of the power button,
+     lit when the monitor is on, dim when off. Sized in vh to track the
+     button proportionally. */
   .power-led {
     position: fixed;
     right: calc(2.2vw + 10.4vh + 1.4vh);
@@ -134,21 +226,93 @@
     min-height: 7px;
     border-radius: 50%;
     z-index: 100;
-    background: radial-gradient(circle at 35% 30%, #b9ffb1 0%, #4cd34c 45%, #2a8a2a 100%);
-    box-shadow: 0 0 4px rgba(80, 220, 80, 0.65), 0 0 1px rgba(0, 0, 0, 0.4) inset;
+    background:
+      radial-gradient(circle at 35% 30%,
+        #b9ffb1 0%,
+        #4cd34c 45%,
+        #2a8a2a 100%);
+    box-shadow:
+      0 0 4px rgba(80, 220, 80, 0.65),
+      0 0 1px rgba(0, 0, 0, 0.4) inset;
     transition: background 0.35s ease, box-shadow 0.35s ease;
     pointer-events: none;
   }
-
   .powered-off .power-led {
-    background: radial-gradient(circle at 35% 30%, #4a5044 0%, #2a302a 60%, #1c201c 100%);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0), inset 0 1px 1px rgba(0, 0, 0, 0.5);
+    background:
+      radial-gradient(circle at 35% 30%,
+        #4a5044 0%,
+        #2a302a 60%,
+        #1c201c 100%);
+    box-shadow:
+      0 0 0 rgba(0, 0, 0, 0),
+      inset 0 1px 1px rgba(0, 0, 0, 0.5);
   }
 
+  /* Stickers on the bezel — flex row so multiple stickers sit side by
+     side. Each .sticker gets a slight rotation + asymmetric drop shadow
+     (heavier on one corner) suggesting a tiny peel where one side is
+     lifting off the plastic. A faint diagonal sheen layered on top
+     reads as the laminate catching the room light. All deliberately
+     subtle so it feels like applied stickers, not a graphic. */
+  .stickers {
+    position: fixed;
+    bottom: -1vh;
+    left: 2.2vw;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5vh;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .sticker {
+    position: relative;
+    height: 8vh;
+    min-height: 50px;
+    transform-origin: bottom left;
+    filter:
+      /* Tight contact shadow under the bulk of the sticker */
+      drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18))
+      /* Longer, softer shadow biased to one corner — implies that
+         corner is fractionally lifted off the surface */
+      drop-shadow(2.5px 3.5px 4px rgba(0, 0, 0, 0.12));
+  }
+  .sticker--sonic { transform: rotate(-4deg); }
+  .sticker--win   { transform: rotate(2.5deg); transform-origin: bottom right; }
+  .sticker img {
+    display: block;
+    height: 100%;
+    width: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  /* Diagonal sheen — subtle laminate shine */
+  .sticker::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      118deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.22) 48%,
+      rgba(255, 255, 255, 0.06) 53%,
+      transparent 68%
+    );
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  /* Powered-off state — fades the screen image out and turns the
+     screen background to black, like a real CRT going dark. */
+  .crt-canvas,
+  .msg {
+    transition: opacity 0.35s ease;
+  }
+  .screen {
+    transition: background 0.35s ease;
+  }
   .powered-off .screen {
     background: #050505;
   }
-
   .powered-off .crt-canvas,
   .powered-off .msg {
     opacity: 0;
@@ -166,33 +330,57 @@
   <div class="controls" id="controls">
     <label><input type="checkbox" id="fx-barrel" checked> Barrel</label>
     <input type="range" id="fx-barrel-amt" min="0" max="0.8" step="0.01" value="0.1">
+    <span class="val" id="fx-barrel-val">0.1</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-aberration" checked> Aberration</label>
     <input type="range" id="fx-aberration-amt" min="0" max="0.03" step="0.001" value="0.007">
+    <span class="val" id="fx-aberration-val">0.007</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-bloom" checked> Bloom</label>
     <input type="range" id="fx-bloom-amt" min="0" max="1.5" step="0.01" value="1.08">
+    <span class="val" id="fx-bloom-val">1.08</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-mask" checked> Mask</label>
     <input type="range" id="fx-mask-amt" min="0" max="0.5" step="0.01" value="0.4">
+    <span class="val" id="fx-mask-val">0.4</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-tint" checked> Tint</label>
     <input type="range" id="fx-tint-amt" min="0" max="1" step="0.01" value="0">
+    <span class="val" id="fx-tint-val">0</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-vignette" checked> Vignette</label>
     <input type="range" id="fx-vignette-amt" min="0" max="1" step="0.01" value="0.15">
+    <span class="val" id="fx-vignette-val">0.15</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-bezel" checked> Bezel</label>
     <input type="range" id="fx-bezel-amt" min="0" max="1" step="0.01" value="0.46">
+    <span class="val" id="fx-bezel-val">0.46</span>
+    <span class="sep">|</span>
     <label><input type="checkbox" id="fx-scanlines" checked> Scanlines</label>
+    <span class="sep">|</span>
+    <button id="fx-copy" type="button">Copy</button>
   </div>
   <span class="power-led" aria-hidden="true"></span>
   <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
+  <!-- Stickers removed for the clean turn-off screen.
+  <div class="stickers" aria-hidden="true">
+    <div class="sticker sticker--sonic"><img src="sticker-sonic.png" alt=""></div>
+    <div class="sticker sticker--win"><img src="sticker-win.png" alt=""></div>
+  </div>
+  -->
 <script>
 (() => {
   const canvas = document.querySelector('.crt-canvas');
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: true });
 
   if (!gl) {
+    // No WebGL — leave the DOM fallback visible.
     return;
   }
 
   document.body.classList.remove('fallback-active');
 
+  // --- Shaders ---
   const VERT_SRC = `
     attribute vec2 a_position;
     varying vec2 v_uv;
@@ -202,6 +390,10 @@
     }
   `;
 
+  // Barrel distortion: push UVs outward as a function of squared distance
+  // from center. Areas that fall outside [0,1] after distortion render as
+  // pure black, which reads as the curve of the tube cropping the image.
+  // Scanlines are applied in distorted UV space so they bow with the curve.
   const FRAG_SRC = `
     precision highp float;
     varying vec2 v_uv;
@@ -215,8 +407,13 @@
     uniform float u_tintIntensity;
     uniform float u_vignette;
     uniform float u_bezel;
+    uniform float u_brightness;
     uniform float u_dpr;
 
+    // Phosphor bloom — 5x5 Gaussian-weighted bright-pass blur, sampled
+    // around the current UV. Only pixels above a brightness threshold
+    // contribute, so dark areas stay dark and bright text/lit phosphor
+    // bleeds soft light into its surroundings.
     vec3 computeBloom(vec2 uv) {
       vec3 sum = vec3(0.0);
       float totalWeight = 0.0;
@@ -245,6 +442,7 @@
         return;
       }
 
+      // Chromatic aberration — RGB channels offset radially from center.
       vec2 dir = uv - 0.5;
       vec4 color;
       color.r = texture2D(u_texture, uv - dir * u_aberration).r;
@@ -252,8 +450,12 @@
       color.b = texture2D(u_texture, uv + dir * u_aberration).b;
       color.a = 1.0;
 
+      // Bloom — add soft glow from bright pixels
       color.rgb += computeBloom(uv) * u_bloomIntensity;
 
+      // Aperture-grille mask — Trinitron-style RGB column stripes.
+      // Each output pixel column emphasises one channel and slightly
+      // dims the other two, creating the subpixel structure.
       float px = uv.x * u_resolution.x;
       float sub = mod(px, 3.0);
       vec3 mask = vec3(1.0);
@@ -262,19 +464,32 @@
       else                mask = vec3(1.0 - u_maskIntensity * 0.5, 1.0 - u_maskIntensity * 0.5, 1.0 + u_maskIntensity);
       color.rgb *= mask;
 
+      // Off-pixel tint — faint cool cast on unlit areas so dark pixels
+      // don't read as pure neutral grey. Brighter pixels keep their hue.
       float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
       color.rgb += vec3(0.01, 0.025, 0.04) * u_tintIntensity * (1.0 - luma);
 
+      // Scanlines in distorted UV space — sine modulation keeps the
+      // dark bands softer than a hard step while still bowing with the tube.
       float pixelY = uv.y * u_resolution.y;
-      float band = mod(pixelY, 3.0);
-      float dark = step(2.0, band) * u_scanlineStrength;
-      color.rgb *= (1.0 - dark);
+      float scan = sin(pixelY * 3.14159265 * 2.0 / 3.0);
+      float scanIntensity = pow(((0.5 * scan) + 0.5) * 0.9 + 0.1, u_scanlineStrength);
+      color.rgb *= scanIntensity;
 
+      // Tube vignette — soft curved-glass phosphor falloff in DISTORTED
+      // UV space, so it follows the bulge of the image. Centre offset
+      // slightly to the lower-right to match the original asymmetric look.
       vec2 vc = uv - vec2(0.55, 0.6);
       float vd = length(vc);
       float vig = smoothstep(0.35, 0.75, vd);
       color.rgb *= 1.0 - vig * u_vignette;
 
+      // Bezel cast-shadow — uses PRE-DISTORT UV (v_uv) so the shadow
+      // stays rectilinear relative to the viewport, like a flat bezel
+      // sitting in front of the curved glass would. Sizes are in CSS
+      // pixels (device pixels / DPR) so the shadow keeps the same
+      // absolute thickness when the viewport is resized. Clamped to
+      // 35% of viewport so very small screens don't get swamped.
       vec2 sizePx = u_resolution / u_dpr;
       vec2 pxPos = v_uv * sizePx;
       float topSize    = min(220.0, sizePx.y * 0.35);
@@ -288,6 +503,7 @@
       float shadow = top * 0.95 + left * 0.85 + bottom * 0.55 + rightS * 0.50;
       shadow = min(shadow, 0.95) * u_bezel;
       color.rgb *= 1.0 - shadow;
+      color.rgb *= u_brightness;
 
       gl_FragColor = color;
     }
@@ -298,6 +514,7 @@
     gl.shaderSource(s, src);
     gl.compileShader(s);
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error('Shader compile error:', gl.getShaderInfoLog(s));
       gl.deleteShader(s);
       return null;
     }
@@ -311,10 +528,12 @@
   gl.attachShader(program, fs);
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Program link error:', gl.getProgramInfoLog(program));
     document.body.classList.add('fallback-active');
     return;
   }
 
+  // Full-screen quad (two triangles in clip space)
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -333,8 +552,10 @@
   const uTintIntensity    = gl.getUniformLocation(program, 'u_tintIntensity');
   const uVignette         = gl.getUniformLocation(program, 'u_vignette');
   const uBezel            = gl.getUniformLocation(program, 'u_bezel');
+  const uBrightness       = gl.getUniformLocation(program, 'u_brightness');
   const uDpr              = gl.getUniformLocation(program, 'u_dpr');
 
+  // Control panel wiring
   const fxBarrel        = document.getElementById('fx-barrel');
   const fxBarrelAmt     = document.getElementById('fx-barrel-amt');
   const fxScanlines     = document.getElementById('fx-scanlines');
@@ -358,16 +579,24 @@
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+  // 2D canvas where we pre-render the screen content (background + text).
+  // Re-rendered on resize and uploaded to GL as a texture.
   const tc = document.createElement('canvas');
   const ctx = tc.getContext('2d');
 
   function renderTexture(w, h) {
     tc.width = w;
     tc.height = h;
+
+    // Screen base colour
     ctx.fillStyle = '#2e3338';
     ctx.fillRect(0, 0, w, h);
 
+    // Text
     const isMobile = w < 640 * (window.devicePixelRatio || 1);
+    // Match the CSS clamp(...) — px values, not rem, because the
+    // canvas is sized in device pixels. Mobile uses larger text
+    // because its three short lines have room to breathe.
     const cssWidth = w / (window.devicePixelRatio || 1);
     const cssFontPx = isMobile
       ? Math.min(72, Math.max(32, cssWidth * 0.075))
@@ -405,13 +634,16 @@
     }
 
     renderTexture(w, h);
+
     gl.viewport(0, 0, w, h);
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(uTexture, 0);
@@ -424,7 +656,9 @@
     gl.uniform1f(uTintIntensity, fxTint.checked ? parseFloat(fxTintAmt.value) : 0.0);
     gl.uniform1f(uVignette, fxVignette.checked ? parseFloat(fxVignetteAmt.value) : 0.0);
     gl.uniform1f(uBezel, fxBezel.checked ? parseFloat(fxBezelAmt.value) : 0.0);
+    gl.uniform1f(uBrightness, 1.08);
     gl.uniform1f(uDpr, dpr);
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 
@@ -436,14 +670,80 @@
     resizeRaf = requestAnimationFrame(render);
   });
 
-  document.getElementById('controls').addEventListener('change', () => requestAnimationFrame(render));
-  document.getElementById('controls').addEventListener('input', () => requestAnimationFrame(render));
+  // Update the inline value displays whenever any slider moves.
+  function syncValueLabels() {
+    var pairs = [
+      ['fx-barrel-amt',     'fx-barrel-val'],
+      ['fx-aberration-amt', 'fx-aberration-val'],
+      ['fx-bloom-amt',      'fx-bloom-val'],
+      ['fx-mask-amt',       'fx-mask-val'],
+      ['fx-tint-amt',       'fx-tint-val'],
+      ['fx-vignette-amt',   'fx-vignette-val'],
+      ['fx-bezel-amt',      'fx-bezel-val'],
+    ];
+    for (var i = 0; i < pairs.length; i++) {
+      var slider = document.getElementById(pairs[i][0]);
+      var label  = document.getElementById(pairs[i][1]);
+      if (slider && label) label.textContent = parseFloat(slider.value);
+    }
+  }
+  syncValueLabels();
 
+  // Re-render and sync labels on any control change
+  ['change', 'input'].forEach(evt => {
+    document.getElementById('controls').addEventListener(evt, () => {
+      syncValueLabels();
+      requestAnimationFrame(render);
+    });
+  });
+
+  // Monitor power button — toggles the powered-off state on body.
   const powerBtn = document.getElementById('power-btn');
   if (powerBtn) {
     powerBtn.addEventListener('click', function () {
       document.body.classList.toggle('powered-off');
     });
+  }
+
+  // Copy current settings to clipboard in a paste-ready format.
+  try {
+    const copyBtn = document.getElementById('fx-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        function fmt(cb, slider) {
+          var on = cb.checked ? 'on' : 'off';
+          return slider ? on + ' (' + parseFloat(slider.value) + ')' : on;
+        }
+        var text = [
+          'Barrel:     ' + fmt(fxBarrel, fxBarrelAmt),
+          'Aberration: ' + fmt(fxAberration, fxAberrationAmt),
+          'Bloom:      ' + fmt(fxBloom, fxBloomAmt),
+          'Mask:       ' + fmt(fxMask, fxMaskAmt),
+          'Tint:       ' + fmt(fxTint, fxTintAmt),
+          'Vignette:   ' + fmt(fxVignette, fxVignetteAmt),
+          'Bezel:      ' + fmt(fxBezel, fxBezelAmt),
+          'Scanlines:  ' + fmt(fxScanlines),
+        ].join('\n');
+        function done(label) {
+          copyBtn.textContent = label;
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = 'Copy';
+            copyBtn.classList.remove('copied');
+          }, 1200);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text)
+            .then(function () { done('Copied!'); })
+            .catch(function () { console.log(text); done('See console'); });
+        } else {
+          console.log(text);
+          done('See console');
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Copy button setup failed:', e);
   }
 })();
 </script>
