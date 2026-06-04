@@ -16,6 +16,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OK NOW">
 <meta name="twitter:description" content="Time to play">
+<link rel="preload" href="monitor-click.wav" as="audio" type="audio/wav">
 <!-- v2: barrel distortion + controls -->
 
 <style>
@@ -28,6 +29,8 @@
   }
 
   body {
+    --glare-x: 34%;
+    --glare-y: 18%;
     background:
       radial-gradient(ellipse at 30% 15%,
         #f8f6ed 0%,
@@ -52,7 +55,27 @@
     align-items: center;
     justify-content: center;
   }
-
+  .screen::before {
+    content: "";
+    position: absolute;
+    inset: -16%;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at var(--glare-x) var(--glare-y),
+        rgba(255, 255, 255, 0.20) 0%,
+        rgba(255, 255, 255, 0.08) 16%,
+        transparent 36%),
+      linear-gradient(118deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(255, 255, 255, 0.08) 47%,
+        rgba(255, 255, 255, 0.025) 54%,
+        transparent 68%);
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    transition: opacity 0.35s ease;
+  }
   /* WebGL canvas — holds the CRT image (text + scanlines + barrel curve).
      Sits below the bezel cast-shadows so they correctly darken its edges. */
   .crt-canvas {
@@ -325,9 +348,85 @@
   .powered-off .screen {
     background: #050505;
   }
+  .powered-off .screen::before {
+    opacity: 0;
+  }
   .powered-off .crt-canvas,
   .powered-off .msg {
     opacity: 0;
+  }
+  .crt-shutting-down .crt-canvas,
+  .crt-shutting-down .msg {
+    animation: crt-collapse 260ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+  .crt-powering-on .crt-canvas,
+  .crt-powering-on .msg {
+    animation: crt-warmup 520ms steps(1, end) both;
+  }
+  @keyframes crt-collapse {
+    0% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    24% {
+      opacity: 0.72;
+      filter: brightness(1.35);
+    }
+    42% {
+      opacity: 0.26;
+      filter: brightness(0.62);
+    }
+    56% {
+      opacity: 0.72;
+      filter: brightness(1.15);
+    }
+    78% {
+      opacity: 0.12;
+      filter: brightness(0.32);
+    }
+    100% {
+      opacity: 0;
+      filter: brightness(0);
+    }
+  }
+  @keyframes crt-warmup {
+    0% {
+      opacity: 0;
+      filter: brightness(0.2);
+    }
+    12% {
+      opacity: 1;
+      filter: brightness(1.75);
+    }
+    20% {
+      opacity: 0.2;
+      filter: brightness(0.55);
+    }
+    34% {
+      opacity: 0.85;
+      filter: brightness(1.25);
+    }
+    48% {
+      opacity: 0.38;
+      filter: brightness(0.7);
+    }
+    64% {
+      opacity: 1;
+      filter: brightness(1.12);
+    }
+    100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .crt-shutting-down .crt-canvas,
+    .crt-shutting-down .msg,
+    .crt-shutting-down .screen::after,
+    .crt-powering-on .crt-canvas,
+    .crt-powering-on .msg {
+      animation-duration: 1ms;
+    }
   }
 </style>
 </head>
@@ -595,6 +694,8 @@
   // Re-rendered on resize and uploaded to GL as a texture.
   const tc = document.createElement('canvas');
   const ctx = tc.getContext('2d');
+  let textureW = 0;
+  let textureH = 0;
 
   function renderTexture(w, h) {
     tc.width = w;
@@ -645,7 +746,11 @@
       canvas.height = h;
     }
 
-    renderTexture(w, h);
+    if (textureW !== w || textureH !== h) {
+      renderTexture(w, h);
+      textureW = w;
+      textureH = h;
+    }
 
     gl.viewport(0, 0, w, h);
     gl.clearColor(0, 0, 0, 1);
@@ -713,9 +818,94 @@
   const powerBtn = document.getElementById('power-btn');
   if (powerBtn) {
     powerBtn.addEventListener('click', function () {
-      document.body.classList.toggle('powered-off');
+      togglePower();
     });
   }
+
+  let powerAnimating = false;
+  let audioCtx = null;
+  const clickAudio = new Audio('monitor-click.wav');
+  clickAudio.preload = 'auto';
+
+  function getAudioCtx() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) audioCtx = new Ctx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function blip(freq, start, duration, gainValue, type) {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.02);
+  }
+
+  function playClickSample() {
+    try {
+      var click = clickAudio.cloneNode();
+      click.volume = 0.85;
+      click.play().catch(function () {});
+    } catch (error) {}
+  }
+
+  function playPowerSound(turningOn) {
+    playClickSample();
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    var now = ctx.currentTime;
+    if (turningOn) {
+      blip(92, now + 0.06, 0.18, 0.014, 'sine');
+      blip(138, now + 0.17, 0.22, 0.01, 'sine');
+    } else {
+      blip(118, now + 0.06, 0.12, 0.014, 'sawtooth');
+      blip(48, now + 0.17, 0.22, 0.01, 'sine');
+    }
+  }
+
+  function togglePower() {
+    if (powerAnimating) return;
+    powerAnimating = true;
+    var turningOn = document.body.classList.contains('powered-off');
+    playPowerSound(turningOn);
+
+    if (turningOn) {
+      document.body.classList.remove('powered-off');
+      document.body.classList.add('crt-powering-on');
+      window.setTimeout(function () {
+        document.body.classList.remove('crt-powering-on');
+        powerAnimating = false;
+      }, 940);
+    } else {
+      document.body.classList.add('crt-shutting-down');
+      window.setTimeout(function () {
+        document.body.classList.add('powered-off');
+        document.body.classList.remove('crt-shutting-down');
+        powerAnimating = false;
+      }, 280);
+    }
+  }
+
+  function setGlare(x, y) {
+    document.body.style.setProperty('--glare-x', (34 + x * 18).toFixed(2) + '%');
+    document.body.style.setProperty('--glare-y', (18 + y * 12).toFixed(2) + '%');
+  }
+
+  window.addEventListener('deviceorientation', function (event) {
+    var gamma = Math.max(-30, Math.min(30, event.gamma || 0)) / 30;
+    var beta = Math.max(-30, Math.min(30, (event.beta || 0) - 45)) / 30;
+    setGlare(gamma, beta);
+  });
 
   // Copy current settings to clipboard in a paste-ready format.
   try {
