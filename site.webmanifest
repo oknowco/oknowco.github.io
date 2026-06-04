@@ -1,0 +1,10 @@
+{
+  "name": "OK NOW",
+  "short_name": "OK NOW",
+  "description": "Time to play",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eeeadc",
+  "theme_color": "#FF105A"
+}
