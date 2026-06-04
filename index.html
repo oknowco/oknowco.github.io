@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>It's OK now to turn off the computer</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: radial-gradient(ellipse at 30% 15%, #f8f6ed 0%, #eeeadc 45%, #ddd7c4 85%, #ccc5af 100%);
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
+    color: #dca67c;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: never;
+  }
+
+  .screen {
+    position: fixed;
+    inset: 2vw 2vw 10vh 2vw;
+    border-radius: 12px;
+    border: 4px solid #c5c3bb;
+    overflow: hidden;
+    background: #2e3338;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.35s ease;
+  }
+
+  .crt-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+    transition: opacity 0.35s ease;
+  }
+
+  @media (max-width: 640px) {
+    .screen {
+      inset: 2vw 2vw 10vh 2vw;
+      border-radius: 8px;
+    }
+  }
+
+  .msg {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    font-size: clamp(1.6rem, 5vw, 6rem);
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 0 1rem;
+    display: none;
+    transition: opacity 0.35s ease;
+  }
+  .fallback-active .msg { display: block; }
+
+  @media (max-width: 640px) {
+    .msg {
+      font-size: clamp(2rem, 7.5vw, 4.5rem);
+    }
+  }
+
+  .desktop-only { display: inline; }
+  .mobile-only  { display: none; }
+
+  @media (max-width: 640px) {
+    .desktop-only { display: none; }
+    .mobile-only  { display: inline; }
+  }
+
+  .controls {
+    display: none;
+  }
+
+  .power-btn {
+    position: fixed;
+    right: 2.2vw;
+    bottom: -1px;
+    width: 10.4vh;
+    height: 7.4vh;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid #8a8474;
+    border-bottom: none;
+    padding: 0;
+    cursor: pointer;
+    background: linear-gradient(180deg, #ddd6c2 0%, #d3cbb5 50%, #c6bea8 100%);
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+  }
+
+  .power-btn::before {
+    content: "⏻";
+    font-size: clamp(16px, 3vh, 36px);
+    color: #5a5444;
+    font-weight: 600;
+    line-height: 1;
+    font-family: "Apple Symbols", "Segoe UI Symbol", sans-serif;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  .power-btn:hover {
+    background: linear-gradient(180deg, #e2dcc8 0%, #d8d0ba 50%, #ccc4ae 100%);
+  }
+
+  .power-btn:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+
+  .power-led {
+    position: fixed;
+    right: calc(2.2vw + 10.4vh + 1.4vh);
+    bottom: calc(7.4vh / 2 - 0.6vh);
+    width: 1.2vh;
+    height: 1.2vh;
+    min-width: 7px;
+    min-height: 7px;
+    border-radius: 50%;
+    z-index: 100;
+    background: radial-gradient(circle at 35% 30%, #b9ffb1 0%, #4cd34c 45%, #2a8a2a 100%);
+    box-shadow: 0 0 4px rgba(80, 220, 80, 0.65), 0 0 1px rgba(0, 0, 0, 0.4) inset;
+    transition: background 0.35s ease, box-shadow 0.35s ease;
+    pointer-events: none;
+  }
+
+  .powered-off .power-led {
+    background: radial-gradient(circle at 35% 30%, #4a5044 0%, #2a302a 60%, #1c201c 100%);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0), inset 0 1px 1px rgba(0, 0, 0, 0.5);
+  }
+
+  .powered-off .screen {
+    background: #050505;
+  }
+
+  .powered-off .crt-canvas,
+  .powered-off .msg {
+    opacity: 0;
+  }
+</style>
+</head>
+<body class="fallback-active">
+  <div class="screen">
+    <canvas class="crt-canvas"></canvas>
+    <div class="msg">
+      <span class="desktop-only">It's OK Now to turn off<br>the computer</span>
+      <span class="mobile-only">It's OK Now<br>to turn off<br>the device</span>
+    </div>
+  </div>
+  <div class="controls" id="controls">
+    <label><input type="checkbox" id="fx-barrel" checked> Barrel</label>
+    <input type="range" id="fx-barrel-amt" min="0" max="0.8" step="0.01" value="0.1">
+    <label><input type="checkbox" id="fx-aberration" checked> Aberration</label>
+    <input type="range" id="fx-aberration-amt" min="0" max="0.03" step="0.001" value="0.007">
+    <label><input type="checkbox" id="fx-bloom" checked> Bloom</label>
+    <input type="range" id="fx-bloom-amt" min="0" max="1.5" step="0.01" value="1.08">
+    <label><input type="checkbox" id="fx-mask" checked> Mask</label>
+    <input type="range" id="fx-mask-amt" min="0" max="0.5" step="0.01" value="0.4">
+    <label><input type="checkbox" id="fx-tint" checked> Tint</label>
+    <input type="range" id="fx-tint-amt" min="0" max="1" step="0.01" value="0">
+    <label><input type="checkbox" id="fx-vignette" checked> Vignette</label>
+    <input type="range" id="fx-vignette-amt" min="0" max="1" step="0.01" value="0.15">
+    <label><input type="checkbox" id="fx-bezel" checked> Bezel</label>
+    <input type="range" id="fx-bezel-amt" min="0" max="1" step="0.01" value="0.46">
+    <label><input type="checkbox" id="fx-scanlines" checked> Scanlines</label>
+  </div>
+  <span class="power-led" aria-hidden="true"></span>
+  <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
+<script>
+(() => {
+  const canvas = document.querySelector('.crt-canvas');
+  const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: true });
+
+  if (!gl) {
+    return;
+  }
+
+  document.body.classList.remove('fallback-active');
+
+  const VERT_SRC = `
+    attribute vec2 a_position;
+    varying vec2 v_uv;
+    void main() {
+      v_uv = a_position * 0.5 + 0.5;
+      gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+  `;
+
+  const FRAG_SRC = `
+    precision highp float;
+    varying vec2 v_uv;
+    uniform sampler2D u_texture;
+    uniform vec2 u_resolution;
+    uniform float u_curvature;
+    uniform float u_scanlineStrength;
+    uniform float u_aberration;
+    uniform float u_bloomIntensity;
+    uniform float u_maskIntensity;
+    uniform float u_tintIntensity;
+    uniform float u_vignette;
+    uniform float u_bezel;
+    uniform float u_dpr;
+
+    vec3 computeBloom(vec2 uv) {
+      vec3 sum = vec3(0.0);
+      float totalWeight = 0.0;
+      float r = 3.0 / u_resolution.x;
+      for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+          vec2 offset = vec2(float(x), float(y)) * r * 3.0;
+          vec3 s = texture2D(u_texture, uv + offset).rgb;
+          s = max(s - 0.3, 0.0);
+          float w = exp(-0.5 * float(x * x + y * y));
+          sum += s * w;
+          totalWeight += w;
+        }
+      }
+      return sum / totalWeight;
+    }
+
+    void main() {
+      vec2 uv = v_uv;
+      vec2 c = uv - 0.5;
+      float r2 = dot(c, c);
+      uv = uv + c * r2 * u_curvature;
+
+      if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+      }
+
+      vec2 dir = uv - 0.5;
+      vec4 color;
+      color.r = texture2D(u_texture, uv - dir * u_aberration).r;
+      color.g = texture2D(u_texture, uv).g;
+      color.b = texture2D(u_texture, uv + dir * u_aberration).b;
+      color.a = 1.0;
+
+      color.rgb += computeBloom(uv) * u_bloomIntensity;
+
+      float px = uv.x * u_resolution.x;
+      float sub = mod(px, 3.0);
+      vec3 mask = vec3(1.0);
+      if (sub < 1.0)      mask = vec3(1.0 + u_maskIntensity, 1.0 - u_maskIntensity * 0.5, 1.0 - u_maskIntensity * 0.5);
+      else if (sub < 2.0) mask = vec3(1.0 - u_maskIntensity * 0.5, 1.0 + u_maskIntensity, 1.0 - u_maskIntensity * 0.5);
+      else                mask = vec3(1.0 - u_maskIntensity * 0.5, 1.0 - u_maskIntensity * 0.5, 1.0 + u_maskIntensity);
+      color.rgb *= mask;
+
+      float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+      color.rgb += vec3(0.01, 0.025, 0.04) * u_tintIntensity * (1.0 - luma);
+
+      float pixelY = uv.y * u_resolution.y;
+      float band = mod(pixelY, 3.0);
+      float dark = step(2.0, band) * u_scanlineStrength;
+      color.rgb *= (1.0 - dark);
+
+      vec2 vc = uv - vec2(0.55, 0.6);
+      float vd = length(vc);
+      float vig = smoothstep(0.35, 0.75, vd);
+      color.rgb *= 1.0 - vig * u_vignette;
+
+      vec2 sizePx = u_resolution / u_dpr;
+      vec2 pxPos = v_uv * sizePx;
+      float topSize    = min(220.0, sizePx.y * 0.35);
+      float leftSize   = min(180.0, sizePx.x * 0.35);
+      float bottomSize = min(140.0, sizePx.y * 0.28);
+      float rightSize  = min(140.0, sizePx.x * 0.28);
+      float top    = smoothstep(topSize,    0.0, pxPos.y);
+      float left   = smoothstep(leftSize,   0.0, pxPos.x);
+      float bottom = smoothstep(bottomSize, 0.0, sizePx.y - pxPos.y);
+      float rightS = smoothstep(rightSize,  0.0, sizePx.x - pxPos.x);
+      float shadow = top * 0.95 + left * 0.85 + bottom * 0.55 + rightS * 0.50;
+      shadow = min(shadow, 0.95) * u_bezel;
+      color.rgb *= 1.0 - shadow;
+
+      gl_FragColor = color;
+    }
+  `;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      gl.deleteShader(s);
+      return null;
+    }
+    return s;
+  }
+
+  const vs = compile(gl.VERTEX_SHADER, VERT_SRC);
+  const fs = compile(gl.FRAGMENT_SHADER, FRAG_SRC);
+  const program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    document.body.classList.add('fallback-active');
+    return;
+  }
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1,  1, -1, -1,  1,
+    -1,  1,  1, -1,  1,  1,
+  ]), gl.STATIC_DRAW);
+
+  const aPosition         = gl.getAttribLocation(program, 'a_position');
+  const uTexture          = gl.getUniformLocation(program, 'u_texture');
+  const uRes              = gl.getUniformLocation(program, 'u_resolution');
+  const uCurvature        = gl.getUniformLocation(program, 'u_curvature');
+  const uScanlineStrength = gl.getUniformLocation(program, 'u_scanlineStrength');
+  const uAberration       = gl.getUniformLocation(program, 'u_aberration');
+  const uBloomIntensity   = gl.getUniformLocation(program, 'u_bloomIntensity');
+  const uMaskIntensity    = gl.getUniformLocation(program, 'u_maskIntensity');
+  const uTintIntensity    = gl.getUniformLocation(program, 'u_tintIntensity');
+  const uVignette         = gl.getUniformLocation(program, 'u_vignette');
+  const uBezel            = gl.getUniformLocation(program, 'u_bezel');
+  const uDpr              = gl.getUniformLocation(program, 'u_dpr');
+
+  const fxBarrel        = document.getElementById('fx-barrel');
+  const fxBarrelAmt     = document.getElementById('fx-barrel-amt');
+  const fxScanlines     = document.getElementById('fx-scanlines');
+  const fxAberration    = document.getElementById('fx-aberration');
+  const fxAberrationAmt = document.getElementById('fx-aberration-amt');
+  const fxBloom         = document.getElementById('fx-bloom');
+  const fxBloomAmt      = document.getElementById('fx-bloom-amt');
+  const fxMask          = document.getElementById('fx-mask');
+  const fxMaskAmt       = document.getElementById('fx-mask-amt');
+  const fxTint          = document.getElementById('fx-tint');
+  const fxTintAmt       = document.getElementById('fx-tint-amt');
+  const fxVignette      = document.getElementById('fx-vignette');
+  const fxVignetteAmt   = document.getElementById('fx-vignette-amt');
+  const fxBezel         = document.getElementById('fx-bezel');
+  const fxBezelAmt      = document.getElementById('fx-bezel-amt');
+
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const tc = document.createElement('canvas');
+  const ctx = tc.getContext('2d');
+
+  function renderTexture(w, h) {
+    tc.width = w;
+    tc.height = h;
+    ctx.fillStyle = '#2e3338';
+    ctx.fillRect(0, 0, w, h);
+
+    const isMobile = w < 640 * (window.devicePixelRatio || 1);
+    const cssWidth = w / (window.devicePixelRatio || 1);
+    const cssFontPx = isMobile
+      ? Math.min(72, Math.max(32, cssWidth * 0.075))
+      : Math.min(96, Math.max(25.6, cssWidth * 0.05));
+    const fontPx = cssFontPx * (window.devicePixelRatio || 1);
+
+    ctx.fillStyle = '#dca67c';
+    ctx.font = `700 ${fontPx}px "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const lines = isMobile
+      ? ["It's OK Now", "to turn off", "the device"]
+      : ["It's OK Now to turn off", "the computer"];
+    const lh = fontPx * 1.2;
+    const startY = h / 2 - ((lines.length - 1) * lh) / 2;
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], w / 2, startY + i * lh);
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
+  }
+
+  function render() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width  * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+
+    renderTexture(w, h);
+    gl.viewport(0, 0, w, h);
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(uTexture, 0);
+    gl.uniform2f(uRes, w, h);
+    gl.uniform1f(uCurvature, fxBarrel.checked ? parseFloat(fxBarrelAmt.value) : 0.0);
+    gl.uniform1f(uScanlineStrength, fxScanlines.checked ? 0.35 : 0.0);
+    gl.uniform1f(uAberration, fxAberration.checked ? parseFloat(fxAberrationAmt.value) : 0.0);
+    gl.uniform1f(uBloomIntensity, fxBloom.checked ? parseFloat(fxBloomAmt.value) : 0.0);
+    gl.uniform1f(uMaskIntensity, fxMask.checked ? parseFloat(fxMaskAmt.value) : 0.0);
+    gl.uniform1f(uTintIntensity, fxTint.checked ? parseFloat(fxTintAmt.value) : 0.0);
+    gl.uniform1f(uVignette, fxVignette.checked ? parseFloat(fxVignetteAmt.value) : 0.0);
+    gl.uniform1f(uBezel, fxBezel.checked ? parseFloat(fxBezelAmt.value) : 0.0);
+    gl.uniform1f(uDpr, dpr);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+
+  render();
+
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(render);
+  });
+
+  document.getElementById('controls').addEventListener('change', () => requestAnimationFrame(render));
+  document.getElementById('controls').addEventListener('input', () => requestAnimationFrame(render));
+
+  const powerBtn = document.getElementById('power-btn');
+  if (powerBtn) {
+    powerBtn.addEventListener('click', function () {
+      document.body.classList.toggle('powered-off');
+    });
+  }
+})();
+</script>
+</body>
+</html>
