@@ -35,10 +35,11 @@
   body {
     --glare-x: 34%;
     --glare-y: 18%;
-    --browser-bar-color: #eeeadc;
+    --browser-bar-top: #f8f6ed;
+    --browser-bar-bottom: #ccc5af;
     background-color: #eeeadc;
     background-image:
-      radial-gradient(ellipse at 30% 15%,
+      linear-gradient(180deg,
         #f8f6ed 0%,
         #eeeadc 45%,
         #ddd7c4 85%,
@@ -68,16 +69,17 @@
     z-index: 9999;
     width: 89%;
     height: 11px;
-    background: var(--browser-bar-color);
     transform: translateX(-50%);
     mask-image: linear-gradient(to right, transparent, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, transparent);
   }
   .safari-theme-sampler--top {
     top: 4px;
+    background: var(--browser-bar-top);
   }
   .safari-theme-sampler--bottom {
     bottom: 3px;
+    background: var(--browser-bar-bottom);
   }
   .screen::before {
     content: "";
