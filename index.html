@@ -29,12 +29,15 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: #eeeadc;
   }
 
   body {
     --glare-x: 34%;
     --glare-y: 18%;
-    background:
+    --browser-bar-color: #eeeadc;
+    background-color: #eeeadc;
+    background-image:
       radial-gradient(ellipse at 30% 15%,
         #f8f6ed 0%,
         #eeeadc 45%,
@@ -57,6 +60,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .safari-theme-sampler {
+    pointer-events: none;
+    position: fixed;
+    left: 50%;
+    z-index: 9999;
+    width: 89%;
+    height: 11px;
+    background: var(--browser-bar-color);
+    transform: translateX(-50%);
+    mask-image: linear-gradient(to right, transparent, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, transparent);
+  }
+  .safari-theme-sampler--top {
+    top: 4px;
+  }
+  .safari-theme-sampler--bottom {
+    bottom: 3px;
   }
   .screen::before {
     content: "";
@@ -434,6 +455,8 @@
 </style>
 </head>
 <body class="fallback-active">
+  <div class="safari-theme-sampler safari-theme-sampler--top" aria-hidden="true"></div>
+  <div class="safari-theme-sampler safari-theme-sampler--bottom" aria-hidden="true"></div>
   <div class="screen">
     <canvas class="crt-canvas"></canvas>
     <div class="msg">
