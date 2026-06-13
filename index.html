@@ -37,6 +37,10 @@
     --glare-y: 18%;
     --browser-bar-top: #f8f6ed;
     --browser-bar-bottom: #ccc5af;
+    --controls-height: clamp(58px, 10.35vh, 96px);
+    --tube-x: clamp(18px, 3.9vw, 58px);
+    --tube-top: clamp(14px, 2.7vh, 34px);
+    --tube-bottom: clamp(24px, 4.6vh, 62px);
     background-color: #eeeadc;
     background-image:
       linear-gradient(180deg,
@@ -51,16 +55,20 @@
     font-smooth: never;
   }
 
-  .screen {
+  .monitor-shell {
     position: fixed;
-    inset: 2vw 2vw 10vh 2vw;
-    border-radius: 12px;
-    border: 4px solid #c5c3bb;
+    inset: 0;
     overflow: hidden;
-    background: #2e3338;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  }
+
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--controls-height);
+    overflow: visible;
+    background: url("screen.png") center / 100% 100% no-repeat;
   }
   .safari-theme-sampler {
     pointer-events: none;
@@ -84,7 +92,10 @@
   .screen::before {
     content: "";
     position: absolute;
-    inset: -16%;
+    left: var(--tube-x);
+    top: var(--tube-top);
+    right: var(--tube-x);
+    bottom: var(--tube-bottom);
     z-index: 2;
     pointer-events: none;
     background:
@@ -102,29 +113,49 @@
     opacity: 0.5;
     transition: opacity 0.35s ease;
   }
+  .screen::after {
+    content: "";
+    position: absolute;
+    left: var(--tube-x);
+    top: var(--tube-top);
+    right: var(--tube-x);
+    bottom: var(--tube-bottom);
+    z-index: 0;
+    pointer-events: none;
+    background: #050505;
+  }
   /* WebGL canvas — holds the CRT image (text + scanlines + barrel curve).
      Sits below the bezel cast-shadows so they correctly darken its edges. */
   .crt-canvas {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: var(--tube-x);
+    top: var(--tube-top);
+    width: calc(100% - var(--tube-x) - var(--tube-x));
+    height: calc(100% - var(--tube-top) - var(--tube-bottom));
     display: block;
     z-index: 1;
   }
 
   @media (max-width: 640px) {
-    .screen {
-      inset: 2vw 2vw 10vh 2vw;
-      border-radius: 8px;
+    body {
+      --controls-height: clamp(54px, 10.35vh, 88px);
+      --tube-x: clamp(12px, 3.4vw, 22px);
+      --tube-top: clamp(12px, 2.5vh, 26px);
+      --tube-bottom: clamp(20px, 4.2vh, 40px);
     }
   }
 
   /* DOM fallback — shown only when WebGL is unavailable.
      The JS removes the `fallback-active` class once the canvas is rendering. */
   .msg {
-    position: relative;
+    position: absolute;
+    left: var(--tube-x);
+    top: var(--tube-top);
+    right: var(--tube-x);
+    bottom: var(--tube-bottom);
     z-index: 3;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     font-size: clamp(1.6rem, 5vw, 6rem);
     font-weight: 700;
@@ -132,7 +163,32 @@
     padding: 0 1rem;
     display: none;
   }
-  .fallback-active .msg { display: block; }
+  .fallback-active .msg { display: flex; }
+  .input-osd {
+    position: absolute;
+    top: calc(var(--tube-top) + 3vh);
+    right: calc(var(--tube-x) + 2vw);
+    z-index: 5;
+    color: rgba(134, 255, 118, 0.82);
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
+    font-size: clamp(18px, 3vw, 34px);
+    font-weight: 400;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow:
+      0 0 3px rgba(134, 255, 118, 0.42),
+      0 0 8px rgba(134, 255, 118, 0.18);
+    transition: opacity 0.08s linear;
+  }
+  .input-osd.is-visible {
+    opacity: 0.78;
+  }
+  .powered-off .input-osd {
+    opacity: 0;
+  }
 
   @media (max-width: 640px) {
     .msg {
@@ -216,84 +272,154 @@
     opacity: 0.3;
   }
 
-  /* Monitor power button — wide tab style that sits at the very bottom
-     of the bezel with rounded top corners, like a stubby button
-     protruding from the case bottom. */
+  .monitor-controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 100%;
+    height: var(--controls-height);
+    background: url("screen-controls.png") center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  .input-btn,
   .power-btn {
-    position: fixed;
-    right: 2.2vw;
-    bottom: 8px;
-    width: 10.4vh;
-    height: 7.4vh;
-    min-width: 28px;
-    min-height: 28px;
-    border-radius: 4px 4px 0 0;
-    border: 1px solid #8a8474;
+    position: absolute;
+    z-index: 20;
+    border: 1px solid rgba(48, 44, 36, 0.82);
     padding: 0;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 50%;
+    overflow: visible;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     background:
-      linear-gradient(180deg,
-        #ddd6c2 0%,
-        #d3cbb5 50%,
-        #c6bea8 100%);
+      radial-gradient(circle at 38% 30%,
+        rgba(255, 255, 255, 0.42) 0%,
+        rgba(255, 255, 255, 0.16) 28%,
+        rgba(255, 255, 255, 0) 48%),
+      linear-gradient(145deg,
+        #ded7c8 0%,
+        #c8c0af 52%,
+        #a49c8b 100%);
     box-shadow:
-      /* Top inset shadow — case casts a small shadow on the button top */
-      inset 0 2px 3px rgba(0, 0, 0, 0.18),
-      /* Faint highlight along the bottom inside edge */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.25),
-      /* Thin dark line around the visible top + sides */
-      0 0 0 1px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      0 1px 0 rgba(255, 255, 255, 0.45),
+      0 2px 2px rgba(48, 43, 34, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.46),
+      inset 0 -2px 2px rgba(66, 59, 47, 0.32);
+    transform: translateY(0);
+    transition:
+      background 90ms ease,
+      box-shadow 90ms ease,
+      transform 90ms ease;
   }
-  .power-btn::before {
-    content: "⏻";
-    font-size: clamp(16px, 3vh, 36px);
-    color: #5a5444;
-    font-weight: 600;
-    line-height: 1;
-    font-family: "Apple Symbols", "Segoe UI Symbol", sans-serif;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  .input-btn::after,
+  .power-btn::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    box-shadow:
+      inset 2px 2px 3px rgba(49, 44, 35, 0.28),
+      inset -2px -2px 3px rgba(255, 255, 255, 0.34);
+    pointer-events: none;
   }
+  .input-btn {
+    right: clamp(138px, 16vw, 220px);
+    bottom: calc(var(--controls-height) * 0.32);
+    width: clamp(23px, calc(var(--controls-height) * 0.36), 34px);
+    height: clamp(23px, calc(var(--controls-height) * 0.36), 34px);
+  }
+  .power-btn {
+    right: clamp(44px, 5.8vw, 86px);
+    bottom: calc(var(--controls-height) * 0.19);
+    width: clamp(38px, calc(var(--controls-height) * 0.58), 56px);
+    height: clamp(38px, calc(var(--controls-height) * 0.58), 56px);
+  }
+  .input-btn:hover,
   .power-btn:hover {
     background:
-      linear-gradient(180deg,
-        #e2dcc8 0%,
-        #d8d0ba 50%,
-        #ccc4ae 100%);
-  }
-  .power-btn:active {
-    transform: translateY(1px);
+      radial-gradient(circle at 38% 30%,
+        rgba(255, 255, 255, 0.48) 0%,
+        rgba(255, 255, 255, 0.18) 28%,
+        rgba(255, 255, 255, 0) 48%),
+      linear-gradient(145deg,
+        #e3dccd 0%,
+        #ccc4b3 52%,
+        #a9a190 100%);
     box-shadow:
-      inset 0 3px 5px rgba(0, 0, 0, 0.28),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.18),
-      0 0 0 1px rgba(0, 0, 0, 0.1);
+      0 1px 0 rgba(255, 255, 255, 0.5),
+      0 2px 3px rgba(48, 43, 34, 0.52),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 2px rgba(66, 59, 47, 0.34);
+  }
+  .input-btn:focus-visible,
+  .power-btn:focus-visible {
+    outline: 2px solid rgba(48, 48, 44, 0.7);
+    outline-offset: 3px;
+  }
+  .input-btn:active,
+  .input-btn.is-pressed,
+  .power-btn:active,
+  .power-btn.is-pressed {
+    transform: translateY(1px);
+    background:
+      radial-gradient(circle at 48% 42%,
+        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 255, 255, 0.04) 34%,
+        rgba(255, 255, 255, 0) 58%),
+      linear-gradient(145deg,
+        #9f9786 0%,
+        #bdb5a4 54%,
+        #d5cfbf 100%);
+    box-shadow:
+      0 0 0 rgba(0, 0, 0, 0),
+      inset 2px 2px 4px rgba(54, 49, 40, 0.48),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.3);
+  }
+  .input-btn:active::after,
+  .input-btn.is-pressed::after,
+  .power-btn:active::after,
+  .power-btn.is-pressed::after {
+    box-shadow:
+      inset 3px 3px 4px rgba(49, 44, 35, 0.34),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.24);
+  }
+  .input-btn:disabled {
+    cursor: wait;
+    opacity: 0.82;
   }
 
   /* Power LED — small green indicator to the left of the power button,
      lit when the monitor is on, dim when off. Sized in vh to track the
      button proportionally. */
   .power-led {
-    position: fixed;
-    right: calc(2.2vw + 10.4vh + 1.4vh);
-    bottom: calc(7.4vh / 2 - 0.6vh);
-    width: 1.2vh;
-    height: 1.2vh;
-    min-width: 7px;
-    min-height: 7px;
+    position: absolute;
+    right: clamp(100px, 12.4vw, 160px);
+    bottom: calc(var(--controls-height) * 0.46);
+    width: clamp(5px, 0.8vw, 8px);
+    aspect-ratio: 1;
     border-radius: 50%;
-    z-index: 100;
+    z-index: 21;
     background:
       radial-gradient(circle at 35% 30%,
-        #b9ffb1 0%,
+        #ffffff 0%,
+        #c6ffc0 12%,
+        #b9ffb1 24%,
         #4cd34c 45%,
         #2a8a2a 100%);
     box-shadow:
+      inset 0 0 1px rgba(255, 255, 255, 0.8),
+      inset 0 -1px 1px rgba(0, 0, 0, 0.38),
       0 0 4px rgba(80, 220, 80, 0.65),
-      0 0 1px rgba(0, 0, 0, 0.4) inset;
+      0 0 9px rgba(80, 220, 80, 0.34),
+      0 1px 2px rgba(0, 0, 0, 0.55);
     transition: background 0.35s ease, box-shadow 0.35s ease;
     pointer-events: none;
   }
@@ -308,36 +434,28 @@
       inset 0 1px 1px rgba(0, 0, 0, 0.5);
   }
 
-  /* Stickers on the bezel — flex row so multiple stickers sit side by
-     side. Each .sticker gets a slight rotation + asymmetric drop shadow
-     (heavier on one corner) suggesting a tiny peel where one side is
-     lifting off the plastic. A faint diagonal sheen layered on top
-     reads as the laminate catching the room light. All deliberately
-     subtle so it feels like applied stickers, not a graphic. */
+  /* Stickers on the bezel. Kept as physical objects: contact shadow,
+     subtle rotation, and laminate glare clipped to the sticker art. */
   .stickers {
-    position: fixed;
-    bottom: -1vh;
-    left: 2.2vw;
+    position: absolute;
+    left: clamp(24px, 4vw, 58px);
+    bottom: calc(var(--controls-height) * 0.36);
     display: flex;
     align-items: flex-end;
-    gap: 1.5vh;
-    z-index: 50;
+    z-index: 22;
     pointer-events: none;
   }
   .sticker {
     position: relative;
-    height: 8vh;
-    min-height: 50px;
+    height: clamp(46px, calc(var(--controls-height) * 0.72), 70px);
     transform-origin: bottom left;
     filter:
-      /* Tight contact shadow under the bulk of the sticker */
       drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18))
-      /* Longer, softer shadow biased to one corner — implies that
-         corner is fractionally lifted off the surface */
-      drop-shadow(2.5px 3.5px 4px rgba(0, 0, 0, 0.12));
+      drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.12));
   }
-  .sticker--sonic { transform: rotate(-4deg); }
-  .sticker--win   { transform: rotate(2.5deg); transform-origin: bottom right; }
+  .sticker--win {
+    transform: rotate(-3deg);
+  }
   .sticker img {
     display: block;
     height: 100%;
@@ -345,19 +463,36 @@
     user-select: none;
     -webkit-user-drag: none;
   }
-  /* Diagonal sheen — subtle laminate shine */
+  .sticker::before {
+    content: "";
+    position: absolute;
+    right: 2%;
+    bottom: 5%;
+    width: 22%;
+    height: 18%;
+    border-radius: 0 0 4px 0;
+    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.16);
+    transform: rotate(2deg);
+    pointer-events: none;
+  }
   .sticker::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      118deg,
-      transparent 38%,
-      rgba(255, 255, 255, 0.22) 48%,
-      rgba(255, 255, 255, 0.06) 53%,
-      transparent 68%
-    );
-    mix-blend-mode: overlay;
+    background:
+      linear-gradient(
+        118deg,
+        transparent 22%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(255, 255, 255, 0.58) 45%,
+        rgba(255, 255, 255, 0.18) 51%,
+        transparent 66%
+      ),
+      radial-gradient(ellipse at 28% 18%,
+        rgba(255, 255, 255, 0.22) 0%,
+        transparent 46%);
+    mix-blend-mode: screen;
+    opacity: 0.74;
     pointer-events: none;
   }
 
@@ -368,10 +503,7 @@
     transition: opacity 0.35s ease;
   }
   .screen {
-    transition: background 0.35s ease;
-  }
-  .powered-off .screen {
-    background: #050505;
+    transition: none;
   }
   .powered-off .screen::before {
     opacity: 0;
@@ -458,58 +590,69 @@
 <body class="fallback-active">
   <div class="safari-theme-sampler safari-theme-sampler--top" aria-hidden="true"></div>
   <div class="safari-theme-sampler safari-theme-sampler--bottom" aria-hidden="true"></div>
-  <div class="screen">
-    <canvas class="crt-canvas"></canvas>
-    <div class="msg">
-      <span class="desktop-only">It's OK Now to turn off<br>the computer</span>
-      <span class="mobile-only">It's OK Now<br>to turn off<br>the device</span>
+  <div class="monitor-shell">
+    <div class="screen">
+      <canvas class="crt-canvas"></canvas>
+      <div class="msg">
+        <span class="desktop-only">It's OK Now to turn off<br>the computer</span>
+        <span class="mobile-only">It's OK Now<br>to turn off<br>the device</span>
+      </div>
+      <div class="input-osd" id="input-osd" aria-hidden="true">VGA</div>
     </div>
+    <div class="monitor-controls" aria-hidden="true"></div>
+    <div class="controls" id="controls">
+      <label><input type="checkbox" id="fx-barrel" checked> Barrel</label>
+      <input type="range" id="fx-barrel-amt" min="0" max="0.8" step="0.01" value="0.1">
+      <span class="val" id="fx-barrel-val">0.1</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-aberration" checked> Aberration</label>
+      <input type="range" id="fx-aberration-amt" min="0" max="0.03" step="0.001" value="0.007">
+      <span class="val" id="fx-aberration-val">0.007</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-bloom" checked> Bloom</label>
+      <input type="range" id="fx-bloom-amt" min="0" max="1.5" step="0.01" value="1.08">
+      <span class="val" id="fx-bloom-val">1.08</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-mask" checked> Mask</label>
+      <input type="range" id="fx-mask-amt" min="0" max="0.5" step="0.01" value="0.4">
+      <span class="val" id="fx-mask-val">0.4</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-tint" checked> Tint</label>
+      <input type="range" id="fx-tint-amt" min="0" max="1" step="0.01" value="0">
+      <span class="val" id="fx-tint-val">0</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-vignette" checked> Vignette</label>
+      <input type="range" id="fx-vignette-amt" min="0" max="1" step="0.01" value="0.15">
+      <span class="val" id="fx-vignette-val">0.15</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-bezel" checked> Bezel</label>
+      <input type="range" id="fx-bezel-amt" min="0" max="1" step="0.01" value="0.46">
+      <span class="val" id="fx-bezel-val">0.46</span>
+      <span class="sep">|</span>
+      <label><input type="checkbox" id="fx-scanlines" checked> Scanlines</label>
+      <span class="sep">|</span>
+      <button id="fx-copy" type="button">Copy</button>
+    </div>
+    <span class="power-led" aria-hidden="true"></span>
+    <button class="input-btn" id="input-btn" type="button" data-label="INPUT" aria-label="Input">Input</button>
+    <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
   </div>
-  <div class="controls" id="controls">
-    <label><input type="checkbox" id="fx-barrel" checked> Barrel</label>
-    <input type="range" id="fx-barrel-amt" min="0" max="0.8" step="0.01" value="0.1">
-    <span class="val" id="fx-barrel-val">0.1</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-aberration" checked> Aberration</label>
-    <input type="range" id="fx-aberration-amt" min="0" max="0.03" step="0.001" value="0.007">
-    <span class="val" id="fx-aberration-val">0.007</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-bloom" checked> Bloom</label>
-    <input type="range" id="fx-bloom-amt" min="0" max="1.5" step="0.01" value="1.08">
-    <span class="val" id="fx-bloom-val">1.08</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-mask" checked> Mask</label>
-    <input type="range" id="fx-mask-amt" min="0" max="0.5" step="0.01" value="0.4">
-    <span class="val" id="fx-mask-val">0.4</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-tint" checked> Tint</label>
-    <input type="range" id="fx-tint-amt" min="0" max="1" step="0.01" value="0">
-    <span class="val" id="fx-tint-val">0</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-vignette" checked> Vignette</label>
-    <input type="range" id="fx-vignette-amt" min="0" max="1" step="0.01" value="0.15">
-    <span class="val" id="fx-vignette-val">0.15</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-bezel" checked> Bezel</label>
-    <input type="range" id="fx-bezel-amt" min="0" max="1" step="0.01" value="0.46">
-    <span class="val" id="fx-bezel-val">0.46</span>
-    <span class="sep">|</span>
-    <label><input type="checkbox" id="fx-scanlines" checked> Scanlines</label>
-    <span class="sep">|</span>
-    <button id="fx-copy" type="button">Copy</button>
-  </div>
-  <span class="power-led" aria-hidden="true"></span>
-  <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
-  <!-- Stickers removed for the clean turn-off screen.
   <div class="stickers" aria-hidden="true">
-    <div class="sticker sticker--sonic"><img src="sticker-sonic.png" alt=""></div>
     <div class="sticker sticker--win"><img src="sticker-win.png" alt=""></div>
   </div>
-  -->
 <script>
 (() => {
   const canvas = document.querySelector('.crt-canvas');
+  const msg = document.querySelector('.msg');
+  const inputBtn = document.getElementById('input-btn');
+  const inputOsd = document.getElementById('input-osd');
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: true });
+
+  function setInputButtonLabel(label) {
+    if (!inputBtn) return;
+    inputBtn.textContent = label;
+    inputBtn.dataset.label = label.toUpperCase();
+  }
 
   if (!gl) {
     // No WebGL — leave the DOM fallback visible.
@@ -723,6 +866,7 @@
   const ctx = tc.getContext('2d');
   let textureW = 0;
   let textureH = 0;
+  let osdTimer = 0;
 
   function renderTexture(w, h) {
     tc.width = w;
@@ -808,6 +952,48 @@
 
   render();
 
+  function showInputOsd(label) {
+    if (!inputOsd) return;
+    inputOsd.textContent = label;
+    inputOsd.classList.add('is-visible');
+    window.clearTimeout(osdTimer);
+    osdTimer = window.setTimeout(function () {
+      inputOsd.classList.remove('is-visible');
+    }, 1200);
+  }
+
+  function toggleInputSource() {
+    showInputOsd('VGA');
+  }
+
+  function addPressFeedback(button) {
+    if (!button) return;
+    let pressTimer = 0;
+    function setPressed() {
+      window.clearTimeout(pressTimer);
+      button.classList.add('is-pressed');
+    }
+    function releasePressed() {
+      window.clearTimeout(pressTimer);
+      pressTimer = window.setTimeout(function () {
+        button.classList.remove('is-pressed');
+      }, 120);
+    }
+    button.addEventListener('pointerdown', setPressed);
+    button.addEventListener('pointerup', releasePressed);
+    button.addEventListener('pointerleave', releasePressed);
+    button.addEventListener('pointercancel', releasePressed);
+    button.addEventListener('blur', function () {
+      window.clearTimeout(pressTimer);
+      button.classList.remove('is-pressed');
+    });
+  }
+
+  if (inputBtn) {
+    addPressFeedback(inputBtn);
+    inputBtn.addEventListener('click', toggleInputSource);
+  }
+
   let resizeRaf = 0;
   window.addEventListener('resize', () => {
     cancelAnimationFrame(resizeRaf);
@@ -844,6 +1030,7 @@
   // Monitor power button — toggles the powered-off state on body.
   const powerBtn = document.getElementById('power-btn');
   if (powerBtn) {
+    addPressFeedback(powerBtn);
     powerBtn.addEventListener('click', function () {
       togglePower();
     });
@@ -878,10 +1065,10 @@
     osc.stop(start + duration + 0.02);
   }
 
-  function playClickSample() {
+  function playClickSample(volume) {
     try {
       var click = clickAudio.cloneNode();
-      click.volume = 0.85;
+      click.volume = typeof volume === 'number' ? volume : 0.85;
       click.play().catch(function () {});
     } catch (error) {}
   }
