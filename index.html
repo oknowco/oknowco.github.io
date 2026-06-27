@@ -35,19 +35,11 @@
   body {
     --glare-x: 34%;
     --glare-y: 18%;
-    --browser-bar-top: #f8f6ed;
-    --browser-bar-bottom: #ccc5af;
-    --controls-height: clamp(58px, 10.35vh, 96px);
-    --tube-x: clamp(18px, 3.9vw, 58px);
-    --tube-top: clamp(14px, 2.7vh, 34px);
-    --tube-bottom: clamp(24px, 4.6vh, 62px);
-    background-color: #eeeadc;
-    background-image:
-      linear-gradient(180deg,
-        #f8f6ed 0%,
-        #eeeadc 45%,
-        #ddd7c4 85%,
-        #ccc5af 100%);
+    --browser-bar-top: #050505;
+    --browser-bar-bottom: #050505;
+    --controls-height: clamp(20px, 5.35vh, 50px);
+    background-color: #050505;
+    background-image: none;
     font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
     color: #dca67c;
     -webkit-font-smoothing: none;
@@ -59,6 +51,7 @@
     position: fixed;
     inset: 0;
     overflow: hidden;
+    background: #050505;
   }
 
   .screen {
@@ -67,8 +60,8 @@
     left: 0;
     right: 0;
     bottom: var(--controls-height);
-    overflow: visible;
-    background: url("screen.png") center / 100% 100% no-repeat;
+    overflow: hidden;
+    background: #050505;
   }
   .safari-theme-sampler {
     pointer-events: none;
@@ -92,11 +85,8 @@
   .screen::before {
     content: "";
     position: absolute;
-    left: var(--tube-x);
-    top: var(--tube-top);
-    right: var(--tube-x);
-    bottom: var(--tube-bottom);
-    z-index: 2;
+    inset: 0;
+    z-index: 3;
     pointer-events: none;
     background:
       radial-gradient(circle at var(--glare-x) var(--glare-y),
@@ -113,47 +103,27 @@
     opacity: 0.5;
     transition: opacity 0.35s ease;
   }
-  .screen::after {
-    content: "";
-    position: absolute;
-    left: var(--tube-x);
-    top: var(--tube-top);
-    right: var(--tube-x);
-    bottom: var(--tube-bottom);
-    z-index: 0;
-    pointer-events: none;
-    background: #050505;
-  }
   /* WebGL canvas — holds the CRT image (text + scanlines + barrel curve).
      Sits below the bezel cast-shadows so they correctly darken its edges. */
   .crt-canvas {
     position: absolute;
-    left: var(--tube-x);
-    top: var(--tube-top);
-    width: calc(100% - var(--tube-x) - var(--tube-x));
-    height: calc(100% - var(--tube-top) - var(--tube-bottom));
-    display: block;
-    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
   }
-
-  @media (max-width: 640px) {
-    body {
-      --controls-height: clamp(54px, 10.35vh, 88px);
-      --tube-x: clamp(12px, 3.4vw, 22px);
-      --tube-top: clamp(12px, 2.5vh, 26px);
-      --tube-bottom: clamp(20px, 4.2vh, 40px);
-    }
+  .crt-canvas {
+    display: block;
+    z-index: 2;
+    background: transparent;
   }
 
   /* DOM fallback — shown only when WebGL is unavailable.
      The JS removes the `fallback-active` class once the canvas is rendering. */
   .msg {
     position: absolute;
-    left: var(--tube-x);
-    top: var(--tube-top);
-    right: var(--tube-x);
-    bottom: var(--tube-bottom);
-    z-index: 3;
+    inset: 0;
+    z-index: 4;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -164,32 +134,6 @@
     display: none;
   }
   .fallback-active .msg { display: flex; }
-  .input-osd {
-    position: absolute;
-    top: calc(var(--tube-top) + 3vh);
-    right: calc(var(--tube-x) + 2vw);
-    z-index: 5;
-    color: rgba(134, 255, 118, 0.82);
-    font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
-    font-size: clamp(18px, 3vw, 34px);
-    font-weight: 400;
-    line-height: 1;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    opacity: 0;
-    pointer-events: none;
-    text-shadow:
-      0 0 3px rgba(134, 255, 118, 0.42),
-      0 0 8px rgba(134, 255, 118, 0.18);
-    transition: opacity 0.08s linear;
-  }
-  .input-osd.is-visible {
-    opacity: 0.78;
-  }
-  .powered-off .input-osd {
-    opacity: 0;
-  }
-
   @media (max-width: 640px) {
     .msg {
       font-size: clamp(2rem, 7.5vw, 4.5rem);
@@ -279,20 +223,64 @@
     z-index: 10;
     width: 100%;
     height: var(--controls-height);
-    background: url("screen-controls.png") center / 100% 100% no-repeat;
+    background:
+      linear-gradient(180deg,
+        #111111 0%,
+        #050505 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 -1px 0 rgba(0, 0, 0, 0.72);
     pointer-events: none;
   }
+  .corner-sticker {
+    position: absolute;
+    left: clamp(18px, 2vw, 28px);
+    bottom: calc(var(--controls-height) / 2);
+    z-index: 19;
+    width: clamp(86px, 8.8vw, 132px);
+    height: auto;
+    transform: translateY(50%);
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter:
+      drop-shadow(0 1px 1px rgba(0, 0, 0, 0.42))
+      drop-shadow(0 2px 4px rgba(0, 0, 0, 0.26));
+  }
+  .monitor-brand {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--controls-height) / 2);
+    z-index: 19;
+    pointer-events: none;
+    color: #e8e3d8;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(18px, 1.55vw, 25px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    transform: translate(-50%, 50%);
+    text-shadow:
+      0 -1px 0 rgba(255, 255, 255, 0.42),
+      0 1px 0 rgba(22, 22, 20, 0.95),
+      0 2px 0 rgba(0, 0, 0, 0.75),
+      1px 0 0 rgba(255, 255, 255, 0.12),
+      -1px 0 0 rgba(0, 0, 0, 0.72);
+    filter:
+      drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.12))
+      drop-shadow(0 2px 1px rgba(0, 0, 0, 0.78));
+    opacity: 0.96;
+  }
 
-  .input-btn,
   .power-btn {
     position: absolute;
     z-index: 20;
-    border: 1px solid rgba(48, 44, 36, 0.82);
+    border: 0;
     padding: 0;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    border-radius: 50%;
+    border-radius: 2px;
     overflow: visible;
     color: transparent;
     font-size: 0;
@@ -300,109 +288,123 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     background:
-      radial-gradient(circle at 38% 30%,
-        rgba(255, 255, 255, 0.42) 0%,
-        rgba(255, 255, 255, 0.16) 28%,
-        rgba(255, 255, 255, 0) 48%),
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.24) 0%,
+        rgba(255, 255, 255, 0.06) 18%,
+        rgba(0, 0, 0, 0.06) 58%,
+        rgba(0, 0, 0, 0.22) 100%),
       linear-gradient(145deg,
-        #ded7c8 0%,
-        #c8c0af 52%,
-        #a49c8b 100%);
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0) 42%),
+      linear-gradient(180deg,
+        #e56f2d 0%,
+        #cc521b 38%,
+        #9d3510 72%,
+        #6c2109 100%);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.45),
-      0 2px 2px rgba(48, 43, 34, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.46),
-      inset 0 -2px 2px rgba(66, 59, 47, 0.32);
+      0 0 0 2px #050505,
+      0 0 0 5px #262622,
+      0 2px 2px rgba(0, 0, 0, 0.82),
+      inset 0 1px 0 rgba(255, 199, 139, 0.46),
+      inset 1px 0 0 rgba(255, 199, 139, 0.12),
+      inset -1px 0 0 rgba(73, 18, 0, 0.34),
+      inset 0 -2px 2px rgba(62, 14, 0, 0.48);
     transform: translateY(0);
     transition:
       background 90ms ease,
       box-shadow 90ms ease,
       transform 90ms ease;
   }
-  .input-btn::after,
+  .power-btn::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 4px;
+    height: 1px;
+    border-radius: 1px;
+    background: rgba(255, 205, 149, 0.42);
+    box-shadow: 0 1px 3px rgba(255, 205, 149, 0.12);
+    pointer-events: none;
+  }
   .power-btn::after {
     content: "";
     position: absolute;
-    inset: -4px;
-    border-radius: 50%;
+    inset: -6px;
+    border-radius: 3px;
     box-shadow:
-      inset 2px 2px 3px rgba(49, 44, 35, 0.28),
-      inset -2px -2px 3px rgba(255, 255, 255, 0.34);
+      inset 2px 2px 3px rgba(0, 0, 0, 0.82),
+      inset -1px -1px 2px rgba(229, 228, 227, 0.1);
     pointer-events: none;
   }
-  .input-btn {
-    right: clamp(138px, 16vw, 220px);
-    bottom: calc(var(--controls-height) * 0.32);
-    width: clamp(23px, calc(var(--controls-height) * 0.36), 34px);
-    height: clamp(23px, calc(var(--controls-height) * 0.36), 34px);
-  }
   .power-btn {
-    right: clamp(44px, 5.8vw, 86px);
-    bottom: calc(var(--controls-height) * 0.19);
-    width: clamp(38px, calc(var(--controls-height) * 0.58), 56px);
-    height: clamp(38px, calc(var(--controls-height) * 0.58), 56px);
+    right: clamp(18px, 2.2vw, 34px);
+    bottom: calc(var(--controls-height) / 2);
+    width: clamp(24px, calc(var(--controls-height) * 0.52), 36px);
+    height: clamp(24px, calc(var(--controls-height) * 0.52), 36px);
+    transform: translateY(50%);
   }
-  .input-btn:hover,
   .power-btn:hover {
     background:
-      radial-gradient(circle at 38% 30%,
-        rgba(255, 255, 255, 0.48) 0%,
-        rgba(255, 255, 255, 0.18) 28%,
-        rgba(255, 255, 255, 0) 48%),
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(255, 255, 255, 0.07) 18%,
+        rgba(0, 0, 0, 0.06) 58%,
+        rgba(0, 0, 0, 0.2) 100%),
       linear-gradient(145deg,
-        #e3dccd 0%,
-        #ccc4b3 52%,
-        #a9a190 100%);
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0) 42%),
+      linear-gradient(180deg,
+        #ef7b35 0%,
+        #d75b20 38%,
+        #a93b12 72%,
+        #74250a 100%);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.5),
-      0 2px 3px rgba(48, 43, 34, 0.52),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 2px rgba(66, 59, 47, 0.34);
+      0 0 0 2px #050505,
+      0 0 0 5px #2e2e29,
+      0 2px 2px rgba(0, 0, 0, 0.82),
+      inset 0 1px 0 rgba(255, 210, 154, 0.52),
+      inset 1px 0 0 rgba(255, 210, 154, 0.14),
+      inset -1px 0 0 rgba(73, 18, 0, 0.34),
+      inset 0 -2px 2px rgba(62, 14, 0, 0.48);
   }
-  .input-btn:focus-visible,
   .power-btn:focus-visible {
     outline: 2px solid rgba(48, 48, 44, 0.7);
     outline-offset: 3px;
   }
-  .input-btn:active,
-  .input-btn.is-pressed,
   .power-btn:active,
   .power-btn.is-pressed {
-    transform: translateY(1px);
+    transform: translateY(calc(50% + 1px));
     background:
-      radial-gradient(circle at 48% 42%,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0.04) 34%,
-        rgba(255, 255, 255, 0) 58%),
-      linear-gradient(145deg,
-        #9f9786 0%,
-        #bdb5a4 54%,
-        #d5cfbf 100%);
+      linear-gradient(180deg,
+        rgba(0, 0, 0, 0.24) 0%,
+        rgba(0, 0, 0, 0.06) 28%,
+        rgba(255, 255, 255, 0.05) 100%),
+      linear-gradient(180deg,
+        #702209 0%,
+        #9d3511 42%,
+        #c8521b 76%,
+        #e56e2d 100%);
     box-shadow:
-      0 0 0 rgba(0, 0, 0, 0),
-      inset 2px 2px 4px rgba(54, 49, 40, 0.48),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.3);
+      0 0 0 2px #050505,
+      0 0 0 5px #242420,
+      0 1px 0 rgba(0, 0, 0, 0.9),
+      inset 1px 1px 2px rgba(48, 10, 0, 0.7),
+      inset -1px -1px 1px rgba(255, 195, 128, 0.13);
   }
-  .input-btn:active::after,
-  .input-btn.is-pressed::after,
   .power-btn:active::after,
   .power-btn.is-pressed::after {
     box-shadow:
-      inset 3px 3px 4px rgba(49, 44, 35, 0.34),
-      inset -1px -1px 2px rgba(255, 255, 255, 0.24);
+      inset 3px 3px 4px rgba(0, 0, 0, 0.72),
+      inset -1px -1px 2px rgba(229, 228, 227, 0.08);
   }
-  .input-btn:disabled {
-    cursor: wait;
-    opacity: 0.82;
-  }
-
   /* Power LED — small green indicator to the left of the power button,
      lit when the monitor is on, dim when off. Sized in vh to track the
      button proportionally. */
   .power-led {
     position: absolute;
-    right: clamp(100px, 12.4vw, 160px);
-    bottom: calc(var(--controls-height) * 0.46);
+    right: clamp(68px, 6.4vw, 86px);
+    bottom: calc(var(--controls-height) / 2);
     width: clamp(5px, 0.8vw, 8px);
     aspect-ratio: 1;
     border-radius: 50%;
@@ -421,6 +423,7 @@
       0 0 9px rgba(80, 220, 80, 0.34),
       0 1px 2px rgba(0, 0, 0, 0.55);
     transition: background 0.35s ease, box-shadow 0.35s ease;
+    transform: translateY(50%);
     pointer-events: none;
   }
   .powered-off .power-led {
@@ -432,68 +435,6 @@
     box-shadow:
       0 0 0 rgba(0, 0, 0, 0),
       inset 0 1px 1px rgba(0, 0, 0, 0.5);
-  }
-
-  /* Stickers on the bezel. Kept as physical objects: contact shadow,
-     subtle rotation, and laminate glare clipped to the sticker art. */
-  .stickers {
-    position: absolute;
-    left: clamp(24px, 4vw, 58px);
-    bottom: calc(var(--controls-height) * 0.36);
-    display: flex;
-    align-items: flex-end;
-    z-index: 22;
-    pointer-events: none;
-  }
-  .sticker {
-    position: relative;
-    height: clamp(46px, calc(var(--controls-height) * 0.72), 70px);
-    transform-origin: bottom left;
-    filter:
-      drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18))
-      drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.12));
-  }
-  .sticker--win {
-    transform: rotate(-3deg);
-  }
-  .sticker img {
-    display: block;
-    height: 100%;
-    width: auto;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-  .sticker::before {
-    content: "";
-    position: absolute;
-    right: 2%;
-    bottom: 5%;
-    width: 22%;
-    height: 18%;
-    border-radius: 0 0 4px 0;
-    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.16);
-    transform: rotate(2deg);
-    pointer-events: none;
-  }
-  .sticker::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(
-        118deg,
-        transparent 22%,
-        rgba(255, 255, 255, 0.08) 35%,
-        rgba(255, 255, 255, 0.58) 45%,
-        rgba(255, 255, 255, 0.18) 51%,
-        transparent 66%
-      ),
-      radial-gradient(ellipse at 28% 18%,
-        rgba(255, 255, 255, 0.22) 0%,
-        transparent 46%);
-    mix-blend-mode: screen;
-    opacity: 0.74;
-    pointer-events: none;
   }
 
   /* Powered-off state — fades the screen image out and turns the
@@ -579,7 +520,6 @@
   @media (prefers-reduced-motion: reduce) {
     .crt-shutting-down .crt-canvas,
     .crt-shutting-down .msg,
-    .crt-shutting-down .screen::after,
     .crt-powering-on .crt-canvas,
     .crt-powering-on .msg {
       animation-duration: 1ms;
@@ -597,7 +537,6 @@
         <span class="desktop-only">It's OK Now to turn off<br>the computer</span>
         <span class="mobile-only">It's OK Now<br>to turn off<br>the device</span>
       </div>
-      <div class="input-osd" id="input-osd" aria-hidden="true">VGA</div>
     </div>
     <div class="monitor-controls" aria-hidden="true"></div>
     <div class="controls" id="controls">
@@ -633,26 +572,16 @@
       <span class="sep">|</span>
       <button id="fx-copy" type="button">Copy</button>
     </div>
+    <div class="monitor-brand" aria-hidden="true">OKNOW</div>
+    <img class="corner-sticker" src="sticker-time-to-play.png" alt="" aria-hidden="true">
     <span class="power-led" aria-hidden="true"></span>
-    <button class="input-btn" id="input-btn" type="button" data-label="INPUT" aria-label="Input">Input</button>
     <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
-  </div>
-  <div class="stickers" aria-hidden="true">
-    <div class="sticker sticker--win"><img src="sticker-win.png" alt=""></div>
   </div>
 <script>
 (() => {
   const canvas = document.querySelector('.crt-canvas');
   const msg = document.querySelector('.msg');
-  const inputBtn = document.getElementById('input-btn');
-  const inputOsd = document.getElementById('input-osd');
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: true });
-
-  function setInputButtonLabel(label) {
-    if (!inputBtn) return;
-    inputBtn.textContent = label;
-    inputBtn.dataset.label = label.toUpperCase();
-  }
 
   if (!gl) {
     // No WebGL — leave the DOM fallback visible.
@@ -866,7 +795,6 @@
   const ctx = tc.getContext('2d');
   let textureW = 0;
   let textureH = 0;
-  let osdTimer = 0;
 
   function renderTexture(w, h) {
     tc.width = w;
@@ -882,19 +810,26 @@
     // canvas is sized in device pixels. Mobile uses larger text
     // because its three short lines have room to breathe.
     const cssWidth = w / (window.devicePixelRatio || 1);
-    const cssFontPx = isMobile
+    const lines = isMobile
+      ? ["It's OK Now", "to turn off", "the device"]
+      : ["It's OK Now to turn off", "the computer"];
+    let cssFontPx = isMobile
       ? Math.min(72, Math.max(32, cssWidth * 0.075))
       : Math.min(96, Math.max(25.6, cssWidth * 0.05));
-    const fontPx = cssFontPx * (window.devicePixelRatio || 1);
+    let fontPx = cssFontPx * (window.devicePixelRatio || 1);
 
     ctx.fillStyle = '#dca67c';
     ctx.font = `700 ${fontPx}px "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const lines = isMobile
-      ? ["It's OK Now", "to turn off", "the device"]
-      : ["It's OK Now to turn off", "the computer"];
+    const maxTextWidth = w * 0.82;
+    while (Math.max(...lines.map((line) => ctx.measureText(line).width)) > maxTextWidth && cssFontPx > 24) {
+      cssFontPx -= 1;
+      fontPx = cssFontPx * (window.devicePixelRatio || 1);
+      ctx.font = `700 ${fontPx}px "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif`;
+    }
+
     const lh = fontPx * 1.2;
     const startY = h / 2 - ((lines.length - 1) * lh) / 2;
     for (let i = 0; i < lines.length; i++) {
@@ -952,20 +887,6 @@
 
   render();
 
-  function showInputOsd(label) {
-    if (!inputOsd) return;
-    inputOsd.textContent = label;
-    inputOsd.classList.add('is-visible');
-    window.clearTimeout(osdTimer);
-    osdTimer = window.setTimeout(function () {
-      inputOsd.classList.remove('is-visible');
-    }, 1200);
-  }
-
-  function toggleInputSource() {
-    showInputOsd('VGA');
-  }
-
   function addPressFeedback(button) {
     if (!button) return;
     let pressTimer = 0;
@@ -987,11 +908,6 @@
       window.clearTimeout(pressTimer);
       button.classList.remove('is-pressed');
     });
-  }
-
-  if (inputBtn) {
-    addPressFeedback(inputBtn);
-    inputBtn.addEventListener('click', toggleInputSource);
   }
 
   let resizeRaf = 0;
