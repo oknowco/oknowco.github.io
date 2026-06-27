@@ -232,21 +232,6 @@
       0 -1px 0 rgba(0, 0, 0, 0.72);
     pointer-events: none;
   }
-  .corner-sticker {
-    position: absolute;
-    left: clamp(18px, 2vw, 28px);
-    bottom: calc(var(--controls-height) / 2);
-    z-index: 19;
-    width: clamp(86px, 8.8vw, 132px);
-    height: auto;
-    transform: translateY(50%);
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-drag: none;
-    filter:
-      drop-shadow(0 1px 1px rgba(0, 0, 0, 0.42))
-      drop-shadow(0 2px 4px rgba(0, 0, 0, 0.26));
-  }
   .monitor-brand {
     position: absolute;
     left: 50%;
@@ -573,7 +558,6 @@
       <button id="fx-copy" type="button">Copy</button>
     </div>
     <div class="monitor-brand" aria-hidden="true">OKNOW</div>
-    <img class="corner-sticker" src="sticker-time-to-play.png" alt="" aria-hidden="true">
     <span class="power-led" aria-hidden="true"></span>
     <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
   </div>
