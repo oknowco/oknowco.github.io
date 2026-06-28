@@ -6,8 +6,8 @@
 <title>OK NOW</title>
 <meta name="description" content="Time to play">
 <meta name="color-scheme" content="light">
-<meta name="theme-color" content="#eeeadc">
-<meta name="msapplication-TileColor" content="#eeeadc">
+<meta name="theme-color" content="#050505">
+<meta name="msapplication-TileColor" content="#050505">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="OK NOW">
@@ -29,7 +29,7 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background-color: #eeeadc;
+    background-color: #050505;
   }
 
   body {
@@ -37,7 +37,6 @@
     --glare-y: 18%;
     --browser-bar-top: #050505;
     --browser-bar-bottom: #050505;
-    --controls-height: clamp(20px, 5.35vh, 50px);
     background-color: #050505;
     background-image: none;
     font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif;
@@ -59,7 +58,7 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: var(--controls-height);
+    bottom: 0;
     overflow: hidden;
     background: #050505;
   }
@@ -86,7 +85,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 3;
+    z-index: 6;
     pointer-events: none;
     background:
       radial-gradient(circle at var(--glare-x) var(--glare-y),
@@ -216,210 +215,273 @@
     opacity: 0.3;
   }
 
-  .monitor-controls {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 10;
-    width: 100%;
-    height: var(--controls-height);
-    background:
-      linear-gradient(180deg,
-        #111111 0%,
-        #050505 100%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 -1px 0 rgba(0, 0, 0, 0.72);
-    pointer-events: none;
-  }
-  .monitor-brand {
+  .dynamic-island {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--controls-height) / 2);
-    z-index: 19;
-    pointer-events: none;
-    color: #e8e3d8;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(18px, 1.55vw, 25px);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: 0.08em;
-    transform: translate(-50%, 50%);
-    text-shadow:
-      0 -1px 0 rgba(255, 255, 255, 0.42),
-      0 1px 0 rgba(22, 22, 20, 0.95),
-      0 2px 0 rgba(0, 0, 0, 0.75),
-      1px 0 0 rgba(255, 255, 255, 0.12),
-      -1px 0 0 rgba(0, 0, 0, 0.72);
-    filter:
-      drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.12))
-      drop-shadow(0 2px 1px rgba(0, 0, 0, 0.78));
-    opacity: 0.96;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 5;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto;
+    align-items: center;
+    justify-items: center;
+    width: auto;
+    min-height: auto;
+    box-sizing: border-box;
+    padding: 7px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(18, 18, 20, 0.98), rgba(0, 0, 0, 0.98)),
+      #000;
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.54),
+      0 0 0 1px rgba(255, 255, 255, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.95);
+    transform: translateX(-50%);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
   }
-
-  .power-btn {
+  .startup-screen .dynamic-island,
+  .island-pending .dynamic-island {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) scale(0.42);
+  }
+  .startup-complete .dynamic-island {
+    animation: island-arrive 540ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
+  }
+  .dynamic-island::before {
+    content: "";
     position: absolute;
-    z-index: 20;
-    border: 0;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(180deg,
+        rgba(255, 255, 255, 0.08) 0 1px,
+        rgba(0, 0, 0, 0.12) 1px 3px,
+        transparent 3px 5px),
+      linear-gradient(90deg,
+        rgba(255, 0, 0, 0.04),
+        rgba(0, 255, 255, 0.035));
+    mix-blend-mode: screen;
+    opacity: 0.38;
+  }
+  .dynamic-island > * {
+    position: relative;
+    z-index: 2;
+  }
+  .island-copy {
+    display: none;
+    gap: 4px;
+    min-width: 0;
+  }
+  .island-meta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    color: rgba(109, 234, 118, 0.94);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(10px, 1.1vw, 13px);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .status-dot {
+    width: 6px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #65d46b;
+    box-shadow: 0 0 10px rgba(101, 212, 107, 0.5);
+    flex: 0 0 auto;
+  }
+  .island-title {
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.92);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(12px, 1.35vw, 15px);
+    line-height: 1.08;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .powered-off .island-title,
+  .ui-powered-off .island-title {
+    color: rgba(255, 255, 255, 0.58);
+  }
+  .powered-off .island-meta,
+  .ui-powered-off .island-meta {
+    color: rgba(255, 255, 255, 0.48);
+  }
+  .powered-off .status-dot,
+  .ui-powered-off .status-dot {
+    background: rgba(255, 255, 255, 0.28);
+    box-shadow: none;
+  }
+  .startup-screen .island-meta {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .startup-screen .island-title {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .startup-screen .status-dot {
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  .power-btn {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(38px, 5.2vw, 44px);
+    aspect-ratio: 1;
     padding: 0;
-    cursor: pointer;
+    border: 1.5px solid rgba(255, 255, 255, 0.92);
+    border-radius: 50%;
+    overflow: visible;
     appearance: none;
     -webkit-appearance: none;
-    border-radius: 2px;
-    overflow: visible;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 62%),
+      #0b0b0b;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.82),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.78);
     color: transparent;
+    cursor: pointer;
     font-size: 0;
     line-height: 0;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    background:
-      linear-gradient(180deg,
-        rgba(255, 255, 255, 0.24) 0%,
-        rgba(255, 255, 255, 0.06) 18%,
-        rgba(0, 0, 0, 0.06) 58%,
-        rgba(0, 0, 0, 0.22) 100%),
-      linear-gradient(145deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0) 42%),
-      linear-gradient(180deg,
-        #e56f2d 0%,
-        #cc521b 38%,
-        #9d3510 72%,
-        #6c2109 100%);
-    box-shadow:
-      0 0 0 2px #050505,
-      0 0 0 5px #262622,
-      0 2px 2px rgba(0, 0, 0, 0.82),
-      inset 0 1px 0 rgba(255, 199, 139, 0.46),
-      inset 1px 0 0 rgba(255, 199, 139, 0.12),
-      inset -1px 0 0 rgba(73, 18, 0, 0.34),
-      inset 0 -2px 2px rgba(62, 14, 0, 0.48);
-    transform: translateY(0);
     transition:
-      background 90ms ease,
-      box-shadow 90ms ease,
-      transform 90ms ease;
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      transform 120ms ease;
   }
   .power-btn::before {
     content: "";
-    position: absolute;
-    left: 4px;
-    right: 4px;
-    top: 4px;
-    height: 1px;
-    border-radius: 1px;
-    background: rgba(255, 205, 149, 0.42);
-    box-shadow: 0 1px 3px rgba(255, 205, 149, 0.12);
-    pointer-events: none;
+    position: relative;
+    z-index: 2;
+    width: 36%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: red;
+    box-shadow:
+      0 0 12px rgba(255, 255, 255, 0.42),
+      0 0 2px rgba(255, 255, 255, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52),
+      inset 0 -2px 2px rgba(71, 71, 71, 0.42);
+    transition:
+      background 120ms ease,
+      box-shadow 120ms ease,
+      border-radius 120ms ease;
   }
   .power-btn::after {
     content: "";
     position: absolute;
-    inset: -6px;
-    border-radius: 3px;
+    z-index: 1;
+    width: 54%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.34);
     box-shadow:
-      inset 2px 2px 3px rgba(0, 0, 0, 0.82),
-      inset -1px -1px 2px rgba(229, 228, 227, 0.1);
-    pointer-events: none;
+      0 0 16px rgba(255, 255, 255, 0.58),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+    animation: power-breathe 3.4s ease-in-out infinite;
+    transform-origin: 50% 50%;
   }
-  .power-btn {
-    right: clamp(18px, 2.2vw, 34px);
-    bottom: calc(var(--controls-height) / 2);
-    width: clamp(24px, calc(var(--controls-height) * 0.52), 36px);
-    height: clamp(24px, calc(var(--controls-height) * 0.52), 36px);
-    transform: translateY(50%);
+  @media (max-width: 640px) {
+    .dynamic-island {
+      bottom: max(12px, env(safe-area-inset-bottom));
+      width: auto;
+      min-height: auto;
+      padding: 6px;
+    }
+    .island-copy {
+      gap: 3px;
+    }
+    .island-meta {
+      gap: 6px;
+      font-size: 10px;
+    }
+    .status-dot {
+      width: 6px;
+    }
+    .island-title {
+      font-size: 12px;
+    }
+    .power-btn {
+      width: 38px;
+      border-width: 1.25px;
+    }
+    .power-btn::before {
+      width: 36%;
+    }
   }
   .power-btn:hover {
-    background:
-      linear-gradient(180deg,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(255, 255, 255, 0.07) 18%,
-        rgba(0, 0, 0, 0.06) 58%,
-        rgba(0, 0, 0, 0.2) 100%),
-      linear-gradient(145deg,
-        rgba(255, 255, 255, 0.22) 0%,
-        rgba(255, 255, 255, 0) 42%),
-      linear-gradient(180deg,
-        #ef7b35 0%,
-        #d75b20 38%,
-        #a93b12 72%,
-        #74250a 100%);
+    border-color: #fff;
     box-shadow:
-      0 0 0 2px #050505,
-      0 0 0 5px #2e2e29,
-      0 2px 2px rgba(0, 0, 0, 0.82),
-      inset 0 1px 0 rgba(255, 210, 154, 0.52),
-      inset 1px 0 0 rgba(255, 210, 154, 0.14),
-      inset -1px 0 0 rgba(73, 18, 0, 0.34),
-      inset 0 -2px 2px rgba(62, 14, 0, 0.48);
+      0 3px 10px rgba(0, 0, 0, 0.82),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.78);
   }
   .power-btn:focus-visible {
-    outline: 2px solid rgba(48, 48, 44, 0.7);
-    outline-offset: 3px;
+    outline: 2px solid rgba(255, 255, 255, 0.72);
+    outline-offset: 4px;
   }
   .power-btn:active,
   .power-btn.is-pressed {
-    transform: translateY(calc(50% + 1px));
-    background:
-      linear-gradient(180deg,
-        rgba(0, 0, 0, 0.24) 0%,
-        rgba(0, 0, 0, 0.06) 28%,
-        rgba(255, 255, 255, 0.05) 100%),
-      linear-gradient(180deg,
-        #702209 0%,
-        #9d3511 42%,
-        #c8521b 76%,
-        #e56e2d 100%);
+    transform: scale(0.96);
     box-shadow:
-      0 0 0 2px #050505,
-      0 0 0 5px #242420,
-      0 1px 0 rgba(0, 0, 0, 0.9),
-      inset 1px 1px 2px rgba(48, 10, 0, 0.7),
-      inset -1px -1px 1px rgba(255, 195, 128, 0.13);
+      0 1px 2px rgba(0, 0, 0, 0.82),
+      inset 0 2px 4px rgba(0, 0, 0, 0.78);
   }
-  .power-btn:active::after,
-  .power-btn.is-pressed::after {
-    box-shadow:
-      inset 3px 3px 4px rgba(0, 0, 0, 0.72),
-      inset -1px -1px 2px rgba(229, 228, 227, 0.08);
+  .powered-off .power-btn,
+  .ui-powered-off .power-btn {
+    border-color: rgba(255, 255, 255, 0.46);
   }
-  /* Power LED — small green indicator to the left of the power button,
-     lit when the monitor is on, dim when off. Sized in vh to track the
-     button proportionally. */
-  .power-led {
-    position: absolute;
-    right: clamp(68px, 6.4vw, 86px);
-    bottom: calc(var(--controls-height) / 2);
-    width: clamp(5px, 0.8vw, 8px);
-    aspect-ratio: 1;
+  .powered-off .power-btn::before,
+  .ui-powered-off .power-btn::before {
     border-radius: 50%;
-    z-index: 21;
     background:
-      radial-gradient(circle at 35% 30%,
-        #ffffff 0%,
-        #c6ffc0 12%,
-        #b9ffb1 24%,
-        #4cd34c 45%,
-        #2a8a2a 100%);
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.04) 30%,
+        rgba(0, 0, 0, 0.26) 100%),
+      #7d7d7d;
     box-shadow:
-      inset 0 0 1px rgba(255, 255, 255, 0.8),
-      inset 0 -1px 1px rgba(0, 0, 0, 0.38),
-      0 0 4px rgba(80, 220, 80, 0.65),
-      0 0 9px rgba(80, 220, 80, 0.34),
-      0 1px 2px rgba(0, 0, 0, 0.55);
-    transition: background 0.35s ease, box-shadow 0.35s ease;
-    transform: translateY(50%);
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -2px 2px rgba(0, 0, 0, 0.32);
+  }
+  .powered-off .power-btn::after,
+  .ui-powered-off .power-btn::after {
+    animation: none;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    opacity: 0.55;
+    width: 64%;
+  }
+  .startup-screen .power-btn {
+    border-color: rgba(255, 255, 255, 0.68);
+    cursor: wait;
     pointer-events: none;
   }
-  .powered-off .power-led {
-    background:
-      radial-gradient(circle at 35% 30%,
-        #4a5044 0%,
-        #2a302a 60%,
-        #1c201c 100%);
+  .startup-screen .power-btn::before {
+    background: red;
     box-shadow:
-      0 0 0 rgba(0, 0, 0, 0),
-      inset 0 1px 1px rgba(0, 0, 0, 0.5);
+      0 0 10px rgba(255, 255, 255, 0.38),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+    opacity: 0.72;
+  }
+  .startup-screen .power-btn::after {
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow:
+      0 0 16px rgba(255, 255, 255, 0.5),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+    animation-duration: 1.9s;
   }
 
   /* Powered-off state — fades the screen image out and turns the
@@ -502,6 +564,31 @@
       filter: brightness(1);
     }
   }
+  @keyframes power-breathe {
+    0%,
+    100% {
+      opacity: 0.26;
+      width: 48%;
+    }
+    50% {
+      opacity: 0.86;
+      width: 100%;
+    }
+  }
+  @keyframes island-arrive {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.42);
+    }
+    58% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .crt-shutting-down .crt-canvas,
     .crt-shutting-down .msg,
@@ -509,21 +596,38 @@
     .crt-powering-on .msg {
       animation-duration: 1ms;
     }
+    .power-btn::after {
+      animation: none;
+      opacity: 0.5;
+      width: 72%;
+    }
+    .startup-complete .dynamic-island {
+      animation: none;
+    }
   }
 </style>
 </head>
-<body class="fallback-active">
+<body class="fallback-active startup-screen island-pending">
   <div class="safari-theme-sampler safari-theme-sampler--top" aria-hidden="true"></div>
   <div class="safari-theme-sampler safari-theme-sampler--bottom" aria-hidden="true"></div>
   <div class="monitor-shell">
     <div class="screen">
       <canvas class="crt-canvas"></canvas>
       <div class="msg">
-        <span class="desktop-only">It's OK Now to turn off<br>the computer</span>
+        <span class="desktop-only">It's OK Now to turn off<br>the computer.</span>
         <span class="mobile-only">It's OK Now<br>to turn off<br>the device</span>
       </div>
+      <div class="dynamic-island" aria-label="Monitor controls">
+        <div class="island-copy">
+          <div class="island-meta">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="island-status">ON</span>
+          </div>
+          <div class="island-title" id="island-title">OK NOW</div>
+        </div>
+        <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
+      </div>
     </div>
-    <div class="monitor-controls" aria-hidden="true"></div>
     <div class="controls" id="controls">
       <label><input type="checkbox" id="fx-barrel" checked> Barrel</label>
       <input type="range" id="fx-barrel-amt" min="0" max="0.8" step="0.01" value="0.1">
@@ -557,9 +661,6 @@
       <span class="sep">|</span>
       <button id="fx-copy" type="button">Copy</button>
     </div>
-    <div class="monitor-brand" aria-hidden="true">OKNOW</div>
-    <span class="power-led" aria-hidden="true"></span>
-    <button class="power-btn" id="power-btn" type="button" aria-label="Power"></button>
   </div>
 <script>
 (() => {
@@ -569,6 +670,13 @@
 
   if (!gl) {
     // No WebGL — leave the DOM fallback visible.
+    window.setTimeout(function () {
+      document.body.classList.remove('startup-screen');
+      window.setTimeout(function () {
+        document.body.classList.remove('island-pending');
+        document.body.classList.add('startup-complete');
+      }, 1000);
+    }, 4000);
     return;
   }
 
@@ -779,10 +887,151 @@
   const ctx = tc.getContext('2d');
   let textureW = 0;
   let textureH = 0;
+  let startupActive = true;
+  const startupImage = new Image();
+  let startupImageReady = false;
+  let startupRaf = 0;
+  const startupStartedAt = Date.now();
+
+  function invalidateTexture() {
+    textureW = 0;
+    textureH = 0;
+    render();
+  }
+
+  startupImage.onload = function () {
+    startupImageReady = true;
+    if (startupActive) invalidateTexture();
+  };
+  startupImage.src = 'clouds.jpg';
+
+  window.setTimeout(function () {
+    startupActive = false;
+    if (startupRaf) cancelAnimationFrame(startupRaf);
+    document.body.classList.remove('startup-screen');
+    syncIsland();
+    invalidateTexture();
+    window.setTimeout(function () {
+      document.body.classList.remove('island-pending');
+      document.body.classList.add('startup-complete');
+    }, 1000);
+  }, 4000);
+
+  function tickStartup() {
+    if (!startupActive) return;
+    textureW = 0;
+    textureH = 0;
+    render();
+    startupRaf = requestAnimationFrame(tickStartup);
+  }
+
+  function drawCoverImage(image, w, h) {
+    var scale = Math.max(w / image.naturalWidth, h / image.naturalHeight);
+    var dw = image.naturalWidth * scale;
+    var dh = image.naturalHeight * scale;
+    ctx.drawImage(image, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  }
+
+  function drawStartupActivityBar(w, h, dpr) {
+    var barHeight = Math.max(13 * dpr, h * 0.02);
+    var y = h - barHeight;
+    var columnW = Math.max(36 * dpr, Math.round(w * 0.055));
+    var palette = [
+      '#c9d7d8',
+      '#b5cbcf',
+      '#a0bdc9',
+      '#8aacc2',
+      '#739cbb',
+      '#5d8db4',
+      '#4e80ad',
+      '#4476a8',
+      '#3f70a4',
+      '#4d7ca9',
+      '#638caf',
+      '#7aa0b7',
+      '#95b4c2',
+      '#b1c8cc'
+    ];
+    var elapsed = (Date.now() - startupStartedAt) / 1000;
+    var patternWidth = columnW * palette.length;
+    var offset = -((elapsed * columnW * 1.45) % patternWidth);
+    var featherHeight = Math.max(3 * dpr, Math.round(barHeight * 0.38));
+
+    var feather = ctx.createLinearGradient(0, y - featherHeight, 0, y);
+    feather.addColorStop(0, 'rgba(143, 178, 192, 0)');
+    feather.addColorStop(1, 'rgba(143, 178, 192, 0.82)');
+    ctx.fillStyle = feather;
+    ctx.fillRect(0, y - featherHeight, w, featherHeight);
+    ctx.fillStyle = '#8fb2c0';
+    ctx.fillRect(0, y, w, barHeight);
+
+    for (var x = offset - patternWidth; x < w + columnW; x += columnW) {
+      var rawIndex = Math.floor((x - offset) / columnW);
+      var index = ((rawIndex % palette.length) + palette.length) % palette.length;
+      ctx.fillStyle = palette[index];
+      ctx.fillRect(x, y, columnW + 1, barHeight);
+    }
+
+    ctx.fillStyle = 'rgba(58, 104, 146, 0.28)';
+    ctx.fillRect(0, h - Math.max(1, Math.round(dpr)), w, Math.max(1, Math.round(dpr)));
+  }
+
+  function drawStartupScreen(w, h) {
+    if (startupImageReady) {
+      drawCoverImage(startupImage, w, h);
+    } else {
+      ctx.fillStyle = '#77b7e7';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(0, 0, w, h);
+
+    var dpr = window.devicePixelRatio || 1;
+    var cssWidth = w / dpr;
+    var isMobile = cssWidth < 640;
+    var lines = isMobile
+      ? ['Please wait while', 'the present is noticed.']
+      : ['Please wait while the present', 'is noticed.'];
+    var cssFontPx = isMobile
+      ? Math.min(72, Math.max(32, cssWidth * 0.075))
+      : Math.min(96, Math.max(25.6, cssWidth * 0.05));
+    var fontPx = cssFontPx * dpr;
+
+    ctx.font = `700 ${fontPx}px "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#e69142';
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.38)';
+    ctx.shadowBlur = Math.max(1, 2 * dpr);
+
+    var maxTextWidth = w * 0.78;
+    while (Math.max(...lines.map((line) => ctx.measureText(line).width)) > maxTextWidth && cssFontPx > 20) {
+      cssFontPx -= 1;
+      fontPx = cssFontPx * dpr;
+      ctx.font = `700 ${fontPx}px "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, Arial, sans-serif`;
+    }
+
+    var lh = fontPx * 1.16;
+    var startY = h / 2 - ((lines.length - 1) * lh) / 2;
+    for (var i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], w / 2, startY + i * lh);
+    }
+    ctx.shadowBlur = 0;
+    drawStartupActivityBar(w, h, dpr);
+  }
 
   function renderTexture(w, h) {
     tc.width = w;
     tc.height = h;
+
+    if (startupActive) {
+      drawStartupScreen(w, h);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
+      return;
+    }
 
     // Screen base colour
     ctx.fillStyle = '#2e3338';
@@ -796,7 +1045,7 @@
     const cssWidth = w / (window.devicePixelRatio || 1);
     const lines = isMobile
       ? ["It's OK Now", "to turn off", "the device"]
-      : ["It's OK Now to turn off", "the computer"];
+      : ["It's OK Now to turn off", "the computer."];
     let cssFontPx = isMobile
       ? Math.min(72, Math.max(32, cssWidth * 0.075))
       : Math.min(96, Math.max(25.6, cssWidth * 0.05));
@@ -870,6 +1119,7 @@
   }
 
   render();
+  startupRaf = requestAnimationFrame(tickStartup);
 
   function addPressFeedback(button) {
     if (!button) return;
@@ -939,7 +1189,29 @@
   let powerAnimating = false;
   let audioCtx = null;
   const clickAudio = new Audio('monitor-click.wav');
+  const islandStatus = document.getElementById('island-status');
+  const islandTitle = document.getElementById('island-title');
   clickAudio.preload = 'auto';
+
+  function syncIsland() {
+    if (startupActive) {
+      if (islandStatus) {
+        islandStatus.textContent = 'WAIT';
+      }
+      if (islandTitle) {
+        islandTitle.textContent = 'Shutting down';
+      }
+      return;
+    }
+    var isOff = document.body.classList.contains('ui-powered-off') || document.body.classList.contains('powered-off');
+    if (islandStatus) {
+      islandStatus.textContent = isOff ? 'OFF' : 'ON';
+    }
+    if (islandTitle) {
+      islandTitle.textContent = isOff ? 'Time to play' : 'OK NOW';
+    }
+  }
+  syncIsland();
 
   function getAudioCtx() {
     var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -988,19 +1260,23 @@
   }
 
   function togglePower() {
-    if (powerAnimating) return;
+    if (startupActive || powerAnimating) return;
     powerAnimating = true;
     var turningOn = document.body.classList.contains('powered-off');
     playPowerSound(turningOn);
 
     if (turningOn) {
+      document.body.classList.remove('ui-powered-off');
       document.body.classList.remove('powered-off');
+      syncIsland();
       document.body.classList.add('crt-powering-on');
       window.setTimeout(function () {
         document.body.classList.remove('crt-powering-on');
         powerAnimating = false;
       }, 940);
     } else {
+      document.body.classList.add('ui-powered-off');
+      syncIsland();
       document.body.classList.add('crt-shutting-down');
       window.setTimeout(function () {
         document.body.classList.add('powered-off');
