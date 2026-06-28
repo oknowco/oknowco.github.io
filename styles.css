@@ -85,6 +85,27 @@
     opacity: 0.5;
     transition: opacity 0.35s ease;
   }
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 50%,
+        rgba(255, 255, 255, 0.018) 0%,
+        rgba(255, 255, 255, 0.012) 45%,
+        transparent 72%),
+      linear-gradient(102deg,
+        transparent 0%,
+        transparent 55%,
+        rgba(255, 255, 255, 0.035) 61%,
+        rgba(255, 255, 255, 0.012) 66%,
+        transparent 76%);
+    opacity: 0.58;
+    mix-blend-mode: screen;
+    transition: opacity 0.35s ease;
+  }
   /* WebGL canvas — holds the CRT image (text + scanlines + barrel curve).
      Sits below the bezel cast-shadows so they correctly darken its edges. */
   .crt-canvas {
@@ -167,7 +188,7 @@
     position: absolute;
     left: 50%;
     bottom: max(16px, env(safe-area-inset-bottom));
-    z-index: 5;
+    z-index: 20;
     isolation: isolate;
     display: grid;
     grid-template-columns: auto;
@@ -206,16 +227,12 @@
     z-index: 3;
     border-radius: inherit;
     pointer-events: none;
-    background:
-      repeating-linear-gradient(180deg,
-        rgba(255, 255, 255, 0.08) 0 1px,
-        rgba(0, 0, 0, 0.12) 1px 3px,
-        transparent 3px 5px),
-      linear-gradient(90deg,
-        rgba(255, 0, 0, 0.04),
-        rgba(0, 255, 255, 0.035));
+    background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 45%,
+      rgba(255, 255, 255, 0.02));
     mix-blend-mode: screen;
-    opacity: 0.38;
+    opacity: 0.32;
   }
   .dynamic-island > * {
     position: relative;
@@ -373,6 +390,9 @@
     transition: none;
   }
   .powered-off .screen::before {
+    opacity: 0;
+  }
+  .powered-off .screen::after {
     opacity: 0;
   }
   .powered-off .crt-canvas,

@@ -46,7 +46,14 @@
     uniform float u_vignette;
     uniform float u_bezel;
     uniform float u_brightness;
+    uniform float u_grainIntensity;
     uniform float u_dpr;
+
+    float hash(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
 
     // Phosphor bloom — 5x5 Gaussian-weighted bright-pass blur, sampled
     // around the current UV. Only pixels above a brightness threshold
@@ -113,6 +120,13 @@
       float scan = sin(pixelY * 3.14159265 * 2.0 / 3.0);
       float scanIntensity = pow(((0.5 * scan) + 0.5) * 0.9 + 0.1, u_scanlineStrength);
       color.rgb *= scanIntensity;
+
+      // Static phosphor/grime variation. This is intentionally tied to
+      // fragment position, not time, so the screen has texture without
+      // the unrealistic crawling noise of a video filter.
+      vec2 grainCell = floor(gl_FragCoord.xy / max(1.0, u_dpr));
+      float grain = hash(grainCell) - 0.5;
+      color.rgb += grain * u_grainIntensity * (0.58 + luma * 0.42);
 
       // Tube vignette — soft curved-glass phosphor falloff in DISTORTED
       // UV space, so it follows the bulge of the image. Centre offset
@@ -191,6 +205,7 @@
   const uVignette         = gl.getUniformLocation(program, 'u_vignette');
   const uBezel            = gl.getUniformLocation(program, 'u_bezel');
   const uBrightness       = gl.getUniformLocation(program, 'u_brightness');
+  const uGrainIntensity   = gl.getUniformLocation(program, 'u_grainIntensity');
   const uDpr              = gl.getUniformLocation(program, 'u_dpr');
 
   const FX = {
@@ -202,7 +217,8 @@
     tintIntensity: 0,
     vignette: 0.15,
     bezel: 0.46,
-    brightness: 1.08
+    brightness: 1.08,
+    grainIntensity: 0.018
   };
 
   const texture = gl.createTexture();
@@ -460,6 +476,13 @@
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
+    const cssWidth = w / dpr;
+    const mobileCrt = cssWidth < 640;
+    const bloomIntensity = mobileCrt ? 0.62 : FX.bloomIntensity;
+    const aberration = mobileCrt ? 0.0036 : FX.aberration;
+    const maskIntensity = mobileCrt ? 0.3 : FX.maskIntensity;
+    const grainIntensity = mobileCrt ? 0.012 : FX.grainIntensity;
+
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.enableVertexAttribArray(aPosition);
@@ -471,13 +494,14 @@
     gl.uniform2f(uRes, w, h);
     gl.uniform1f(uCurvature, FX.curvature);
     gl.uniform1f(uScanlineStrength, FX.scanlineStrength);
-    gl.uniform1f(uAberration, FX.aberration);
-    gl.uniform1f(uBloomIntensity, FX.bloomIntensity);
-    gl.uniform1f(uMaskIntensity, FX.maskIntensity);
+    gl.uniform1f(uAberration, aberration);
+    gl.uniform1f(uBloomIntensity, bloomIntensity);
+    gl.uniform1f(uMaskIntensity, maskIntensity);
     gl.uniform1f(uTintIntensity, FX.tintIntensity);
     gl.uniform1f(uVignette, FX.vignette);
     gl.uniform1f(uBezel, FX.bezel);
     gl.uniform1f(uBrightness, FX.brightness);
+    gl.uniform1f(uGrainIntensity, grainIntensity);
     gl.uniform1f(uDpr, dpr);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
