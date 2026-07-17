@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 322">
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <g style="opacity: .9;">
+        <path d="M124,210v16h-16v-16h16ZM52,210v16h-16v-16h16ZM158,200v12h-12v-12h12ZM18,200v12H6v-12h12Z"/>
+      </g>
+      <g style="opacity: .8;">
+        <path d="M122,170v12h-12v-12h12ZM89.1,170v12h-12v-12h12ZM50,170v12h-12v-12h12ZM166,156v10h-10v-10h10ZM10,156v10H0v-10h10Z"/>
+      </g>
+      <g style="opacity: .6;">
+        <path d="M120,128v10h-10v-10h10ZM87.5,128v10h-10v-10h10ZM48,128v10h-10v-10h10ZM158,112v8h-8v-8h8ZM18,112v8h-8v-8h8Z"/>
+      </g>
+      <g style="opacity: .4;">
+        <path d="M118,86v8h-8v-8h8ZM85.5,86v8h-8v-8h8ZM46,86v8h-8v-8h8ZM150,68v6h-6v-6h6ZM24,68v6h-6v-6h6Z"/>
+      </g>
+      <g style="opacity: .2;">
+        <path d="M116,48v6h-6v-6h6ZM84,48v6h-6v-6h6ZM44,48v6h-6v-6h6ZM140,30v4h-4v-4h4ZM82.2,19.4v4h-4v-4h4ZM30,30v4h-4v-4h4Z"/>
+      </g>
+      <g style="opacity: .1;">
+        <path d="M114,12v4h-4v-4h4ZM42,12v4h-4v-4h4ZM97.4,0v3h-3V0h3ZM62,0v3h-3V0h3Z"/>
+      </g>
+      <rect x="104" y="298" width="24" height="24" rx="4.5" ry="4.5" transform="translate(426 194) rotate(90)"/>
+      <rect x="32" y="298" width="24" height="24" rx="4.5" ry="4.5" transform="translate(354 266) rotate(90)"/>
+    </g>
+  </g>
+</svg>
