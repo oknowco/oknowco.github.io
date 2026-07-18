@@ -167,10 +167,10 @@
 
   .ok-ident {
     --figure-size: clamp(30px, 4.6vw, 56px);
-    --travel: clamp(33px, 6.5vw, 80px);
-    --now-offset: clamp(12px, 2.1vw, 25px);
-    --lockup-shift: clamp(5px, 1.95vw, 24px);
-    --star-fall: clamp(17px, 2.1vw, 25px);
+    --star-rise: clamp(40px, 6.1vw, 74px);
+    --now-height: clamp(94px, 14.35vw, 175px);
+    --vertical-gap: clamp(6px, 1.1vw, 12px);
+    --star-fall: clamp(24px, 3.2vw, 38px);
     position: relative;
     width: min(900px, calc(100vw - 48px));
     height: min(520px, calc(100vh - 160px));
@@ -180,20 +180,33 @@
   .ok-ident img {
     position: absolute;
     display: block;
-    filter: invert(1);
+    filter: invert(52.55%);
     user-select: none;
     will-change: transform, opacity;
   }
 
-  .ok-ident__star-ok {
+  .ok-ident__vertical-mark {
     position: absolute;
-    top: 50%;
+    top: 36%;
     left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vertical-gap);
+    width: var(--figure-size);
+    padding-top: var(--star-rise);
+    transform: translate(-50%, -50%);
+  }
+
+  .ok-ident__star-ok {
+    position: relative;
     width: var(--figure-size);
     aspect-ratio: 180 / 282;
-    transform: translate(-50%, -50%) rotate(0deg);
-    transform-origin: 50% 50%;
-    will-change: transform;
+  }
+
+  .ok-ident__figure {
+    position: absolute;
+    inset: 0;
   }
 
   .ok-ident__ok {
@@ -201,6 +214,7 @@
     left: 0;
     width: 100%;
     height: auto;
+    opacity: 0;
   }
 
   .ok-ident__star-band {
@@ -220,21 +234,28 @@
   .ok-ident__star-band--6 { --star-drift: 3px; clip-path: inset(58% 0 27% 0); }
   .ok-ident__star-band--eyes { --star-drift: 0px; clip-path: inset(90% 0 0 0); }
 
+  .ok-ident__now-slot {
+    position: relative;
+    width: var(--figure-size);
+    height: var(--now-height);
+  }
+
   .ok-ident__now {
     top: 50%;
-    left: calc(47% - var(--now-offset) + var(--lockup-shift));
+    left: 50%;
     width: auto;
     height: var(--figure-size);
     opacity: 0;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: 50% 50%;
   }
 
   .ok-ident__tagline {
     position: absolute;
-    top: calc(50% + var(--figure-size));
+    top: calc(50% + min(32vh, 260px));
     left: 50%;
     margin: 0;
-    color: #fff;
+    color: #868686;
     font-family: "Redaction 50", Georgia, serif;
     font-size: 1.2em;
     font-weight: 400;
@@ -245,28 +266,33 @@
     transform: translateX(-50%);
   }
 
-  .powered-off .ok-ident__star-ok {
-    animation: ok-ident-fall-left 6.4s cubic-bezier(0.65, 0, 0.35, 1) both;
+  .powered-off .ok-ident__ok {
+    animation: ok-ident-ok-arrives 6s ease both;
   }
 
   .powered-off .ok-ident__star-band {
-    animation: ok-ident-star-stream 2.7s cubic-bezier(0.22, 0.72, 0.18, 1) both;
+    animation: ok-ident-star-stream 2.4s cubic-bezier(0.2, 0.75, 0.18, 1) both;
   }
 
-  .powered-off .ok-ident__star-band--1 { animation-delay: 0.05s; }
-  .powered-off .ok-ident__star-band--2 { animation-delay: 0.2s; }
-  .powered-off .ok-ident__star-band--3 { animation-delay: 0.36s; }
-  .powered-off .ok-ident__star-band--4 { animation-delay: 0.53s; }
-  .powered-off .ok-ident__star-band--5 { animation-delay: 0.7s; }
-  .powered-off .ok-ident__star-band--6 { animation-delay: 0.88s; }
-  .powered-off .ok-ident__star-band--eyes { animation-delay: 1.04s; }
+  .powered-off .ok-ident__star-band--1 { animation-delay: 0.9s; }
+  .powered-off .ok-ident__star-band--2 { animation-delay: 1.05s; }
+  .powered-off .ok-ident__star-band--3 { animation-delay: 1.22s; }
+  .powered-off .ok-ident__star-band--4 { animation-delay: 1.4s; }
+  .powered-off .ok-ident__star-band--5 { animation-delay: 1.58s; }
+  .powered-off .ok-ident__star-band--6 { animation-delay: 1.77s; }
+  .powered-off .ok-ident__star-band--eyes { animation-delay: 1.98s; }
 
   .powered-off .ok-ident__now {
-    animation: ok-ident-now-arrives 6.4s ease both;
+    animation: ok-ident-now-arrives 6s ease both;
   }
 
   .powered-off .ok-ident__tagline {
-    animation: ok-ident-tagline-arrives 6.4s ease both;
+    animation: ok-ident-tagline-arrives 6s ease both;
+  }
+
+  @keyframes ok-ident-ok-arrives {
+    0% { opacity: 0; }
+    18%, 100% { opacity: 1; }
   }
 
   @keyframes ok-ident-star-stream {
@@ -281,20 +307,9 @@
     }
   }
 
-  @keyframes ok-ident-fall-left {
-    0%, 59% {
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    79%, 100% {
-      left: 47%;
-      transform: translate(calc(-50% - var(--travel) + var(--lockup-shift)), -50%) rotate(-90deg);
-    }
-  }
-
   @keyframes ok-ident-now-arrives {
-    0%, 79% { opacity: 0; }
-    91%, 100% { opacity: 1; }
+    0%, 72% { opacity: 0; }
+    85%, 100% { opacity: 1; }
   }
 
   @keyframes ok-ident-tagline-arrives {
@@ -502,16 +517,13 @@
     .power-btn:hover .power-glyph {
       transform: none;
     }
-    .powered-off .ok-ident__star-ok,
+    .powered-off .ok-ident__ok,
     .powered-off .ok-ident__star-band,
     .powered-off .ok-ident__now,
     .powered-off .ok-ident__tagline {
       animation: none;
     }
-    .powered-off .ok-ident__star-ok {
-      left: 47%;
-      transform: translate(calc(-50% - var(--travel) + var(--lockup-shift)), -50%) rotate(-90deg);
-    }
+    .powered-off .ok-ident__ok,
     .powered-off .ok-ident__star-band,
     .powered-off .ok-ident__now,
     .powered-off .ok-ident__tagline {
