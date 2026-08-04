@@ -1,0 +1,18 @@
+{
+  "name": "OK NOW",
+  "short_name": "OK NOW",
+  "description": "OK NOW is an independent game studio. Time to Play.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
+  "icons": [
+    {
+      "src": "/assets/favicon.png",
+      "sizes": "300x300",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
