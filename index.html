@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
 THESIS: The universe resolves into the exact vertical OK NOW lockup, then OK BOY wakes up inside it.
-OWN-WORLD: Screen Black, Signal White, W95FA system language and one living pixel character.
+OWN-WORLD: Screen Black, Signal White, Geist Pixel Grid system language and one living pixel character.
 STORY: Stars gather, the ASCII identity forms, supplied artwork takes its place, and OK BOY becomes interactive.
 FIRST VIEWPORT: One centred vertical identity framed by a quiet universe BIOS.
 FORM: A holding page with one authored entrance and one playful interaction.
@@ -27,8 +27,10 @@ FORM: A holding page with one authored entrance and one playful interaction.
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/favicon.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="assets/css/ok-boy-world.css?v=3">
-  <link rel="stylesheet" href="assets/css/site.css?v=13">
+  <link rel="preload" href="assets/fonts/typography-study/GeistPixel-Grid.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/typography-study/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/ok-boy-world.css?v=6">
+  <link rel="stylesheet" href="assets/css/site.css?v=17">
 </head>
 <body>
   <main class="holding ascii-holding" id="holding">
@@ -48,17 +50,20 @@ FORM: A holding page with one authored entrance and one playful interaction.
           </g>
         </svg>
         <p class="bios-boot bios-identity">
-          <span class="bios-line bios-line--1" data-ascii-reveal>OK NOW - GAMES STUDIO BIOS V1.0</span>
-          <span class="bios-line bios-line--2" data-ascii-reveal>COPYRIGHT (C) THE PRESENT MOMENT.</span>
+          <span class="bios-line bios-line--1" data-ascii-reveal data-reveal-delay="0">Universe BIOS v1.0</span>
+          <span class="bios-line bios-line--2" data-ascii-reveal data-reveal-delay="360">Copyright (C) The present moment, OK NOW Software, Inc.</span>
         </p>
       </div>
       <div class="bios-diagnostics">
         <p class="bios-boot bios-group bios-group--system">
           <span class="bios-line bios-line--3">
-            CONSCIOUS MEMORY TEST :
+            Conscious Memory Test :
             <span id="bios-memory">000%</span> OK
           </span>
-          <span class="bios-line bios-line--4" data-ascii-reveal>DETECTING TIME ... NOW</span>
+          <span class="bios-line bios-line--4" data-ascii-reveal data-reveal-delay="2200">Detecting Time ... NOW</span>
+        </p>
+        <p class="bios-boot bios-group bios-group--device" aria-label="Current device information">
+          <span class="bios-line bios-line--5" data-ascii-reveal data-reveal-delay="2720">Connection : Human via WEB.EXE</span>
         </p>
         <span class="bios-cursor" aria-hidden="true">_</span>
       </div>
@@ -146,10 +151,13 @@ FORM: A holding page with one authored entrance and one playful interaction.
     </section>
 
     <footer class="holding__footer bios-prompt">
-      <h1 id="holding-title" data-ok-boy-surface="tagline">
-        <span>IT IS OK NOW TO TURN OFF YOUR DEVICE.</span>
-        <strong data-ascii-ready>TIME TO PLAY.</strong>
-      </h1>
+      <div class="bios-prompt__content">
+        <h1 id="holding-title" data-ok-boy-surface="tagline">
+          <span>It is OK now to turn off your device.</span>
+          <strong data-ascii-ready>TIME TO PLAY.</strong>
+        </h1>
+        <p class="bios-contact">Everybody must be saved. <a href="mailto:oknowco@gmail.com">CONNECT</a> us.</p>
+      </div>
     </footer>
 
     <div
@@ -160,6 +168,6 @@ FORM: A holding page with one authored entrance and one playful interaction.
     ></div>
   </main>
 
-    <script type="module" src="assets/js/site.js?v=29"></script>
+    <script type="module" src="assets/js/site.js?v=34"></script>
 </body>
 </html>
