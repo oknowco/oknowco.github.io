@@ -29,11 +29,11 @@ FORM: A holding page with one authored entrance and one playful interaction.
   <link rel="manifest" href="site.webmanifest">
   <link rel="preload" href="assets/fonts/typography-study/GeistPixel-Grid.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/typography-study/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/ok-boy-world.css?v=6">
-  <link rel="stylesheet" href="assets/css/site.css?v=17">
+  <link rel="stylesheet" href="assets/css/ok-boy-world.css?v=7">
+  <link rel="stylesheet" href="assets/css/site.css?v=20">
 </head>
 <body>
-  <main class="holding ascii-holding" id="holding">
+  <main class="holding ascii-holding" id="holding" tabindex="-1">
     <canvas class="ascii-source" id="ascii-source" aria-hidden="true"></canvas>
     <canvas class="ascii-grid" id="ascii-grid" aria-hidden="true"></canvas>
     <pre class="sr-only" id="ascii-output" aria-hidden="true"></pre>
@@ -50,8 +50,8 @@ FORM: A holding page with one authored entrance and one playful interaction.
           </g>
         </svg>
         <p class="bios-boot bios-identity">
-          <span class="bios-line bios-line--1" data-ascii-reveal data-reveal-delay="0">Universe BIOS v1.0</span>
-          <span class="bios-line bios-line--2" data-ascii-reveal data-reveal-delay="360">Copyright (C) The present moment, OK NOW Software, Inc.</span>
+          <span class="bios-line bios-line--1" data-ascii-reveal data-reveal-delay="0">Universe BIOS v1.0 | OK NOW games studio.</span>
+          <span class="bios-line bios-line--2" data-ascii-reveal data-reveal-delay="360">Copyright (C) The present moment, Inc</span>
         </p>
       </div>
       <div class="bios-diagnostics">
@@ -63,7 +63,7 @@ FORM: A holding page with one authored entrance and one playful interaction.
           <span class="bios-line bios-line--4" data-ascii-reveal data-reveal-delay="2200">Detecting Time ... NOW</span>
         </p>
         <p class="bios-boot bios-group bios-group--device" aria-label="Current device information">
-          <span class="bios-line bios-line--5" data-ascii-reveal data-reveal-delay="2720">Connection : Human via WEB.EXE</span>
+          <span class="bios-line bios-line--5" data-ascii-reveal data-reveal-delay="2720">Plug and play: Human via WEB.EXE</span>
         </p>
         <span class="bios-cursor" aria-hidden="true">_</span>
       </div>
@@ -152,11 +152,9 @@ FORM: A holding page with one authored entrance and one playful interaction.
 
     <footer class="holding__footer bios-prompt">
       <div class="bios-prompt__content">
-        <h1 id="holding-title" data-ok-boy-surface="tagline">
-          <span>It is OK now to turn off your device.</span>
-          <strong data-ascii-ready>TIME TO PLAY.</strong>
+        <h1 class="bios-contact" id="holding-title" data-ok-boy-surface="tagline">
+          <span>Form a <a href="mailto:oknowco@gmail.com">CONNECTION</a>. OK Now, <span data-ascii-ready>Time to play.</span></span>
         </h1>
-        <p class="bios-contact">Everybody must be saved. <a href="mailto:oknowco@gmail.com">CONNECT</a> us.</p>
       </div>
     </footer>
 
@@ -168,6 +166,27 @@ FORM: A holding page with one authored entrance and one playful interaction.
     ></div>
   </main>
 
-    <script type="module" src="assets/js/site.js?v=34"></script>
+  <section
+    class="universe-error"
+    id="universe-error"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="universe-error-title"
+    aria-describedby="universe-error-message"
+    aria-live="assertive"
+    tabindex="-1"
+    hidden
+  >
+    <div class="universe-error__panel">
+      <h2 id="universe-error-title">OK NOW</h2>
+      <div id="universe-error-message">
+        <p>A conscious exception has occurred. You are not in the moment, return to the now.</p>
+        <p>* No progress has been lost.</p>
+      </div>
+      <p class="universe-error__prompt">Press to continue</p>
+    </div>
+  </section>
+
+    <script type="module" src="assets/js/site.js?v=39"></script>
 </body>
 </html>
