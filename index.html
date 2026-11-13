@@ -34,7 +34,7 @@
   <link rel="preload" href="assets/fonts/typography-study/GeistPixel-Grid.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/typography-study/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/ok-boy-world.css?v=8">
-  <link rel="stylesheet" href="assets/css/site.css?v=23">
+  <link rel="stylesheet" href="assets/css/site.css?v=24">
 </head>
 <body>
   <main class="holding ascii-holding" id="holding" tabindex="-1">
@@ -75,7 +75,7 @@
           <span class="bios-line bios-line--4" data-ascii-reveal data-reveal-delay="2200">Detecting Time ... NOW</span>
         </p>
         <div class="bios-camera bios-line" id="bios-camera">
-          <span id="bios-camera-status" aria-live="polite">Visual Input : Optional / Local only</span>
+          <span class="sr-only" id="bios-camera-status" aria-live="polite">Camera optional and processed locally</span>
           <button
             class="bios-camera__action"
             id="bios-camera-action"
@@ -84,8 +84,8 @@
             disabled
           >
             <span id="bios-camera-action-prefix"></span>
-            <strong id="bios-camera-action-label">CONNECT</strong>
-            <span id="bios-camera-action-copy"> to become the constellation</span>
+            <strong id="bios-camera-action-label">RECONNECT</strong>
+            <span id="bios-camera-action-copy"> with the universe</span>
           </button>
         </div>
         <span class="bios-cursor" aria-hidden="true">_</span>
@@ -225,6 +225,6 @@
     </div>
   </section>
 
-    <script type="module" src="assets/js/site.js?v=73"></script>
+    <script type="module" src="assets/js/site.js?v=75"></script>
 </body>
 </html>
