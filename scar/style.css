@@ -1,0 +1,232 @@
+@font-face {
+  font-family: 'Cagliostro';
+  src: url('assets/cagliostro.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  font: 14px system-ui, sans-serif;
+  color: #f1f1f1;
+  background: #000;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+#screen {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  background: #000;
+}
+
+#screen:fullscreen { width: 100%; height: 100%; }
+#screen::backdrop { background: #000; }
+
+#frame {
+  position: relative;
+  width: min(100%, calc(100vh * 4 / 3));
+  width: min(100%, calc(100dvh * 4 / 3));
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+#view { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#view:focus { outline: 0; }
+#view[data-dragging] { cursor: none; }
+#view[data-fixed-shot] { cursor: default; }
+#reticle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  transform: translate(-50%, -50%);
+  background: #eeeb;
+  box-shadow: 0 0 2px #141414;
+  border-radius: 50%;
+  opacity: .55;
+  pointer-events: none;
+}
+
+#survey {
+  position: absolute;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: 60px;
+  width: min(320px, calc(100% - 28px));
+  max-height: calc(100% - 72px);
+  padding: 10px;
+  overflow: auto;
+  background: #101010ed;
+  border: 1px solid #ffffff22;
+}
+#survey .dates, #viewpoints {
+  display: grid;
+  gap: 4px;
+}
+#survey .dates { grid-template-columns: 1.75fr repeat(4, 1fr); }
+#survey .dates button { padding-inline: 5px; text-align: center; }
+#viewpoints { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block: 8px; }
+#survey button {
+  min-height: 36px;
+  padding: 5px 8px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: #ffffff0b;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+#survey button:hover:not(:disabled), #survey button[aria-pressed="true"] {
+  background: #ffffff21;
+  border-color: #ffffff30;
+}
+#survey button:disabled { opacity: .39; cursor: default; }
+#story-shots { display: grid; gap: 4px; margin-block: 8px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+#story-shots button { line-height: 1.25; }
+#survey button[aria-busy="true"] { opacity: .65; cursor: wait; }
+#survey .survey-credits { display: inline-flex; align-items: center; min-height: 36px; padding-inline: 8px; color: inherit; }
+#frame:has(#survey:not([hidden])) #reticle, #view[data-fixed-shot] ~ #reticle { visibility: hidden; }
+#frame[data-title-open] #reticle { visibility: hidden; }
+
+.controls {
+  position: absolute;
+  right: max(9px, env(safe-area-inset-right));
+  bottom: max(9px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 2px;
+}
+.controls[hidden] { display: none; }
+
+.controls button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  opacity: .76;
+  cursor: pointer;
+}
+
+.controls button:hover:not(:disabled),
+.controls button:focus-visible {
+  background: #0008;
+  opacity: 1;
+}
+
+.controls button:focus-visible { outline: 1px solid currentColor; outline-offset: -2px; }
+.controls button:disabled, .controls button[aria-busy="true"] { opacity: .36; cursor: wait; }
+
+.controls svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px #000);
+}
+
+#sound[aria-pressed="false"] .sound-on,
+#sound[aria-pressed="true"] .sound-off,
+#fullscreen:not([data-active]) .contract,
+#fullscreen[data-active] .expand { display: none; }
+
+#title-screen {
+  --title-type: clamp(14px, 1.6cqw, 32px);
+  --title-opacity: .92;
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  color: rgb(245 245 245 / var(--title-opacity));
+  font-family: 'Cagliostro', Arial, Helvetica, sans-serif;
+  font-size: var(--title-type);
+}
+#title-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #191919 url('assets/scar-opening.webp') center / cover no-repeat;
+  transition: opacity 380ms ease-out;
+}
+#title-screen[data-scene-ready]::before { opacity: 0; }
+.title-label, .title-mark, #loading, #title-menu, .title-feedback { position: absolute; margin: 0; }
+.title-label, #loading, .title-feedback { inset-inline: 4%; }
+.title-label { top: 4.8%; }
+.title-label, #load-message, .title-action { text-transform: uppercase; }
+.title-mark img, .title-label, #load-message, .title-action span, #load-retry, #title-feedback, .title-feedback {
+  filter: blur(1px);
+}
+.title-mark { width: 85%; left: 52%; top: 43.5%; transform: translate(-50%, -50%); }
+.title-mark img { display: block; width: 100%; height: auto; opacity: var(--title-opacity); }
+#loading { bottom: 2.6%; }
+#load-message, #title-feedback { margin: 0; }
+#title-menu {
+  inset-inline: 20.5% 24.3%;
+  bottom: 2.9%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: title-menu-in 900ms ease-out 180ms both;
+}
+#title-menu[hidden] { display: none; }
+#title-screen[inert] #title-menu { animation-play-state: paused; }
+.title-action {
+  min-height: 44px;
+  min-width: 44px;
+  padding: .55em .7em;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#load-retry { text-decoration: underline; text-underline-offset: .34em; text-decoration-thickness: 1px; }
+#title-menu .title-action[aria-pressed="true"] span:last-child { text-decoration: line-through; }
+.title-action:hover:not([aria-busy]) { color: #ddd; }
+.title-action:focus-visible { outline: 1px solid currentColor; outline-offset: 1px; }
+.title-action[aria-busy="true"] { opacity: .72; cursor: wait; }
+#title-feedback, .title-feedback { font-size: max(12px, .64em); }
+#title-feedback { position: absolute; inset-inline: 0; bottom: calc(100% + .5em); }
+.title-feedback { bottom: 14%; }
+@keyframes title-menu-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  #title-screen::before { transition: none; }
+  #title-menu { animation: none; }
+}
+@container (max-width: 760px) {
+  #title-menu { inset-inline: 4%; }
+  #title-menu .title-action { padding-inline: .35em; }
+}
+
+#status {
+  position: absolute;
+  left: 16px;
+  bottom: 58px;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 10px 12px;
+  background: #000d;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
