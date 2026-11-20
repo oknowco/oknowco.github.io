@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Scar</title>
   <link rel="preload" href="assets/cagliostro.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=scar-credits-menu">
-  <script type="module" src="scar.js?v=scar-credits-menu"></script>
+  <link rel="stylesheet" href="style.css?v=scar-soft-menu">
+  <script type="module" src="scar.js?v=scar-soft-menu"></script>
 </head>
 <body>
   <main id="screen">
@@ -15,13 +15,10 @@
       <p id="view-controls" class="visually-hidden">Use WASD to walk and Shift to walk faster. Click and drag, swipe, or use the arrow keys to look. Press V to open the menu.</p>
       <span id="reticle" aria-hidden="true"></span>
       <section id="survey" aria-label="Places, scenes and years" hidden>
-        <div class="survey-nav">
-          <div class="survey-tabs" role="tablist" aria-label="Explore Scar">
-            <button id="places-tab" type="button" role="tab" aria-controls="viewpoints" aria-selected="true">Places</button>
-            <button id="scenes-tab" type="button" role="tab" aria-controls="story-shots" aria-selected="false" tabindex="-1">Scenes</button>
-            <button id="years-tab" type="button" role="tab" aria-controls="years" aria-selected="false" tabindex="-1">Years</button>
-          </div>
-          <a class="survey-credits" href="credits.html" target="_blank" rel="noopener">Credits</a>
+        <div class="survey-tabs" role="tablist" aria-label="Explore Scar">
+          <button id="places-tab" type="button" role="tab" aria-controls="viewpoints" aria-selected="true"><span>Places</span></button>
+          <button id="scenes-tab" type="button" role="tab" aria-controls="story-shots" aria-selected="false" tabindex="-1"><span>Scenes</span></button>
+          <button id="years-tab" type="button" role="tab" aria-controls="years" aria-selected="false" tabindex="-1"><span>Years</span></button>
         </div>
         <div class="survey-body">
           <div id="viewpoints" role="tabpanel" aria-labelledby="places-tab">
@@ -38,7 +35,6 @@
             <button type="button" data-shot="crane" aria-pressed="false">1927 · The crane</button>
             <button type="button" data-shot="wall" aria-pressed="false">1933 · The child by the wall</button>
             <button type="button" data-shot="wall-walk" aria-pressed="false">Walk around the child</button>
-            <button type="button" data-shot="mission" aria-pressed="false">1930 · The mission cross</button>
             <button type="button" data-shot="hill-night" aria-pressed="false">Dead Man’s Hill at night</button>
             <button type="button" data-shot="tunnel-figure" aria-pressed="false">1930 · The tunnel mouth</button>
           </div>
@@ -67,7 +63,7 @@
             <path class="contract" d="M4 9h5V4m6 0v5h5m0 6h-5v5m-6 0v-5H4"/>
           </svg>
         </button>
-        <button id="survey-toggle" type="button" aria-controls="survey" aria-expanded="false" disabled>Menu</button>
+        <button id="survey-toggle" type="button" aria-controls="survey" aria-expanded="false" disabled><span>Menu</span></button>
       </div>
       <section id="title-screen" aria-label="Scar scene testing">
         <p class="title-label">Scene testing</p>
