@@ -59,39 +59,49 @@ body { margin: 0; }
   position: absolute;
   right: max(14px, env(safe-area-inset-right));
   bottom: 60px;
-  width: min(320px, calc(100% - 28px));
+  width: min(390px, calc(100% - 28px));
   max-height: calc(100% - 72px);
-  padding: 10px;
-  overflow: auto;
-  background: #101010ed;
+  display: flex;
+  flex-direction: column;
+  background: #141414f5;
   border: 1px solid #ffffff22;
 }
-#survey .dates, #viewpoints {
-  display: grid;
-  gap: 4px;
-}
-#survey .dates { grid-template-columns: 1.75fr repeat(4, 1fr); }
-#survey .dates button { padding-inline: 5px; text-align: center; }
-#viewpoints { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block: 8px; }
+#survey[hidden], #survey [hidden] { display: none; }
+.survey-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 2px 18px; }
+.survey-header h2 { margin: 0; font: 1.45rem 'Cagliostro', Georgia, serif; }
+#survey-close { width: 36px; display: grid; place-items: center; }
+#survey-close svg { width: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.survey-tabs { display: flex; padding-inline: 14px; border-bottom: 1px solid #ffffff24; }
+.survey-body { overflow: auto; overscroll-behavior: contain; padding: 8px 14px 4px; }
 #survey button {
   min-height: 36px;
-  padding: 5px 8px;
+  padding: 6px 8px;
   text-align: left;
   font: inherit;
   color: inherit;
-  background: #ffffff0b;
-  border: 1px solid transparent;
+  background: transparent;
+  border: 0;
   cursor: pointer;
 }
-#survey button:hover:not(:disabled), #survey button[aria-pressed="true"] {
-  background: #ffffff21;
-  border-color: #ffffff30;
-}
+#survey button:hover:not(:disabled), #survey button[aria-pressed="true"] { background: #ffffff16; }
+#survey button:focus-visible, #survey a:focus-visible { outline: 1px solid #f1f1f1; outline-offset: -1px; }
 #survey button:disabled { opacity: .39; cursor: default; }
-#story-shots { display: grid; gap: 4px; margin-block: 8px; grid-template-columns: repeat(2,minmax(0,1fr)); }
-#story-shots button { line-height: 1.25; }
+#survey .survey-tabs button { flex: 1; text-align: center; color: #c6c6c6; border-bottom: 2px solid transparent; }
+#survey .survey-tabs button[aria-selected="true"] { color: #fff; border-color: #da4c4c; }
+#viewpoints h3 { color: #c6c6c6; font-size: .85rem; font-weight: 500; margin: 14px 8px 3px; }
+#viewpoints h3:first-child { margin-top: 4px; }
+.place-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+#story-shots { display: grid; grid-template-columns: 1fr; }
+#story-shots button + button { border-top: 1px solid #ffffff14; }
+#survey .dates { display: grid; grid-template-columns: 1.65fr repeat(4,minmax(0,1fr)); }
+#survey .dates button { text-align: center; padding-inline: 4px; }
 #survey button[aria-busy="true"] { opacity: .65; cursor: wait; }
-#survey .survey-credits { display: inline-flex; align-items: center; min-height: 36px; padding-inline: 8px; color: inherit; }
+#survey .survey-credits { display: inline-flex; align-items: center; min-height: 36px; margin-top: 4px; padding-inline: 8px; color: #c6c6c6; }
+@container (max-width: 480px) {
+  #survey { right: 8px; bottom: 50px; max-height: calc(100% - 58px); width: calc(100% - 16px); }
+  .survey-header { padding-top: 2px; }
+  .survey-body { padding-inline: 10px; }
+}
 #frame:has(#survey:not([hidden])) #reticle, #view[data-fixed-shot] ~ #reticle { visibility: hidden; }
 #frame[data-title-open] #reticle { visibility: hidden; }
 
@@ -210,15 +220,30 @@ body { margin: 0; }
   #title-menu .title-action { padding-inline: .35em; }
 }
 
-#status {
+#status, #film-loading {
   position: absolute;
   left: 16px;
-  bottom: 58px;
+  top: 14px;
   max-width: calc(100% - 32px);
   margin: 0;
   padding: 10px 12px;
   background: #000d;
+  pointer-events: none;
 }
+#status:not([hidden]) ~ #film-loading { display: none; }
+[data-loading]::before {
+  content: '';
+  display: inline-block;
+  width: .72em;
+  height: .72em;
+  margin-right: .6em;
+  border: 1px solid #fff5;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: scene-loading .9s linear infinite;
+}
+@keyframes scene-loading { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) { [data-loading]::before { animation: none; } }
 
 .visually-hidden {
   position: absolute;

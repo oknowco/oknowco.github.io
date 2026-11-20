@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Scar</title>
   <link rel="preload" href="assets/cagliostro.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=scar-public-preview">
-  <script type="module" src="scar.js?v=scar-mark-blend"></script>
+  <link rel="stylesheet" href="style.css?v=scar-viewpoints">
+  <script type="module" src="scar.js?v=scar-viewpoints"></script>
 </head>
 <body>
   <main id="screen">
@@ -15,25 +15,47 @@
       <p id="view-controls" class="visually-hidden">Use WASD to walk and Shift to walk faster. Click and drag, swipe, or use the arrow keys to look. Press V for viewpoints and dates.</p>
       <span id="reticle" aria-hidden="true"></span>
       <section id="survey" aria-label="Viewpoints and dates" hidden>
-        <div class="dates" role="group" aria-label="Date">
-          <button type="button" data-year="1927" aria-pressed="false">1927 eclipse</button>
-          <button type="button" data-year="1928" aria-pressed="false">1928</button>
-          <button type="button" data-year="1930" aria-pressed="true">1930</button>
-          <button type="button" data-year="1933" aria-pressed="false">1933</button>
-          <button type="button" data-year="1936" aria-pressed="false">1936</button>
+        <div class="survey-header">
+          <h2>Explore</h2>
+          <button id="survey-close" type="button" aria-label="Close viewpoints">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
         </div>
-        <div id="story-shots" role="group" aria-label="Dated scenes">
-          <button type="button" data-shot="elephant" aria-pressed="false">~125,000 years ago · Elephant</button>
-          <button type="button" data-shot="crane" aria-pressed="false">1927 · The crane</button>
-          <button type="button" data-shot="wall" aria-pressed="false">1933 · The child by the wall</button>
-          <button type="button" data-shot="wall-walk" aria-pressed="false">Walk around the child</button>
-          <button type="button" data-shot="mission" aria-pressed="false">1930 · The mission cross</button>
-          <button type="button" data-shot="hill-night" aria-pressed="false">Dead Man’s Hill at night</button>
-          <button type="button" data-shot="tunnel-figure" aria-pressed="false">1930 · The tunnel mouth</button>
+        <div class="survey-tabs" role="tablist" aria-label="Explore Scar">
+          <button id="places-tab" type="button" role="tab" aria-controls="viewpoints" aria-selected="true">Places</button>
+          <button id="scenes-tab" type="button" role="tab" aria-controls="story-shots" aria-selected="false" tabindex="-1">Scenes</button>
+          <button id="years-tab" type="button" role="tab" aria-controls="years" aria-selected="false" tabindex="-1">Years</button>
         </div>
-        <div id="viewpoints" role="group" aria-label="Jump to a viewpoint"></div>
-        <button id="replay" type="button" hidden>Replay eclipse</button>
-        <a class="survey-credits" href="credits.html" target="_blank" rel="noopener">Credits</a>
+        <div class="survey-body">
+          <div id="viewpoints" role="tabpanel" aria-labelledby="places-tab">
+            <h3 id="moor-heading">Moor and dam</h3>
+            <div id="moor-places" class="place-grid" role="group" aria-labelledby="moor-heading"></div>
+            <h3 id="village-heading">Village</h3>
+            <div id="village-places" class="place-grid" role="group" aria-labelledby="village-heading"></div>
+            <h3 id="cinema-heading">Cinema</h3>
+            <div id="cinema-places" class="place-grid" role="group" aria-labelledby="cinema-heading"></div>
+          </div>
+          <div id="story-shots" role="tabpanel" aria-labelledby="scenes-tab" hidden>
+            <button type="button" data-shot="elephant" aria-pressed="false">~125,000 years ago · Elephant</button>
+            <button type="button" data-shot="crane" aria-pressed="false">1927 · The crane</button>
+            <button type="button" data-shot="wall" aria-pressed="false">1933 · The child by the wall</button>
+            <button type="button" data-shot="wall-walk" aria-pressed="false">Walk around the child</button>
+            <button type="button" data-shot="mission" aria-pressed="false">1930 · The mission cross</button>
+            <button type="button" data-shot="hill-night" aria-pressed="false">Dead Man’s Hill at night</button>
+            <button type="button" data-shot="tunnel-figure" aria-pressed="false">1930 · The tunnel mouth</button>
+          </div>
+          <div id="years" role="tabpanel" aria-labelledby="years-tab" hidden>
+            <div class="dates" role="group" aria-label="Construction year">
+              <button type="button" data-year="1927" aria-pressed="false">1927 eclipse</button>
+              <button type="button" data-year="1928" aria-pressed="false">1928</button>
+              <button type="button" data-year="1930" aria-pressed="true">1930</button>
+              <button type="button" data-year="1933" aria-pressed="false">1933</button>
+              <button type="button" data-year="1936" aria-pressed="false">1936</button>
+            </div>
+            <button id="replay" type="button" hidden>Replay eclipse</button>
+          </div>
+          <a class="survey-credits" href="credits.html" target="_blank" rel="noopener">Credits</a>
+        </div>
       </section>
       <div class="controls" hidden>
         <button id="survey-toggle" type="button" aria-label="Viewpoints and dates" aria-controls="survey" aria-expanded="false" disabled>
@@ -70,6 +92,7 @@
         <noscript><p class="title-feedback">Enable JavaScript to play Scar.</p></noscript>
       </section>
       <p id="status" role="status" hidden></p>
+      <p id="film-loading" role="status" data-loading hidden></p>
       <p id="control-status" class="visually-hidden" role="status"></p>
     </div>
   </main>
