@@ -28,7 +28,7 @@ Resized for Scar, with smaller ears and reduced textures.
 https://animalanimator.github.io/african-elephant-rig-blender/
 
 Sheep Skull by Slipdogg, captured with Polycam, CC BY 4.0.
-Scaled and positioned for the tunnel figure.
+Scaled and positioned for the tunnel figure, with textures reduced for the browser.
 https://poly.cam/explore/capture/B23AC36F-9AA4-440D-98F7-4A8FBCB378D5/Sheep%2BSkull
 
 20170618_dripping.cave.wav by dobroide, CC BY 4.0.
