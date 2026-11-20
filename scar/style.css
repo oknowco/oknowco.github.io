@@ -93,7 +93,7 @@ body { margin: 0; }
 .place-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
 #story-shots { display: grid; grid-template-columns: 1fr; }
 #story-shots button + button { border-top: 1px solid #ffffff14; }
-#survey .dates { display: grid; grid-template-columns: 1.65fr repeat(4,minmax(0,1fr)); }
+#survey .dates { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); }
 #survey .dates button { text-align: center; padding-inline: 4px; }
 #survey button[aria-busy="true"] { opacity: .65; cursor: wait; }
 #survey .survey-credits { display: inline-flex; align-items: center; min-height: 36px; margin-top: 4px; padding-inline: 8px; color: #c6c6c6; }

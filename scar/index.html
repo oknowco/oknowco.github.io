@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Scar</title>
   <link rel="preload" href="assets/cagliostro.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=scar-viewpoints">
-  <script type="module" src="scar.js?v=scar-chapel"></script>
+  <link rel="stylesheet" href="style.css?v=scar-eclipse">
+  <script type="module" src="scar.js?v=scar-eclipse"></script>
 </head>
 <body>
   <main id="screen">
@@ -37,6 +37,7 @@
           </div>
           <div id="story-shots" role="tabpanel" aria-labelledby="scenes-tab" hidden>
             <button type="button" data-shot="elephant" aria-pressed="false">~125,000 years ago · Elephant</button>
+            <button id="play-eclipse" type="button">Play eclipse here</button>
             <button type="button" data-shot="crane" aria-pressed="false">1927 · The crane</button>
             <button type="button" data-shot="wall" aria-pressed="false">1933 · The child by the wall</button>
             <button type="button" data-shot="wall-walk" aria-pressed="false">Walk around the child</button>
@@ -46,13 +47,12 @@
           </div>
           <div id="years" role="tabpanel" aria-labelledby="years-tab" hidden>
             <div class="dates" role="group" aria-label="Construction year">
-              <button type="button" data-year="1927" aria-pressed="false">1927 eclipse</button>
+              <button type="button" data-year="1927" aria-pressed="false">1927</button>
               <button type="button" data-year="1928" aria-pressed="false">1928</button>
               <button type="button" data-year="1930" aria-pressed="true">1930</button>
               <button type="button" data-year="1933" aria-pressed="false">1933</button>
               <button type="button" data-year="1936" aria-pressed="false">1936</button>
             </div>
-            <button id="replay" type="button" hidden>Replay eclipse</button>
           </div>
           <a class="survey-credits" href="credits.html" target="_blank" rel="noopener">Credits</a>
         </div>
