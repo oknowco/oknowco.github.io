@@ -1,0 +1,64 @@
+Scar preview asset notices
+
+Landscape data
+
+Terrain derived from the Environment Agency LiDAR DTM.
+© Environment Agency copyright and/or database right 2022.
+https://environment.data.gov.uk/dataset/13787b9a-26a4-4775-8523-806d13af58fc
+Open Government Licence v3.0
+https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+
+Moorland cover guided by Natural England’s Priority Habitats Inventory.
+© Natural England. Contains Ordnance Survey data © Crown copyright and
+database right 2024.
+https://www.data.gov.uk/dataset/4b6ddab7-6c0f-4407-946e-d6499f19fcde/priority-habitats-inventory-england
+
+Distant ground cover uses modified Copernicus Sentinel data 2025
+from Sentinel-2C scene S2C_30UWF_20250513_0_L2A.
+https://registry.opendata.aws/sentinel-2-l2a-cogs/
+
+Railway and shoreline informed by © OpenStreetMap contributors.
+Open Database License
+https://www.openstreetmap.org/copyright
+
+Models and sound
+
+African Elephant Bull by AnimalAnimator.com, CC BY 4.0.
+Resized for Scar, with smaller ears and reduced textures.
+https://animalanimator.github.io/african-elephant-rig-blender/
+
+Sheep Skull by Slipdogg, captured with Polycam, CC BY 4.0.
+Scaled and positioned for the tunnel figure.
+https://poly.cam/explore/capture/B23AC36F-9AA4-440D-98F7-4A8FBCB378D5/Sheep%2BSkull
+
+20170618_dripping.cave.wav by dobroide, CC BY 4.0.
+Trimmed, filtered, level-adjusted and mixed to mono with cave dripping
+water by mentos987 (CC0).
+https://freesound.org/people/dobroide/sounds/396314/
+https://freesound.org/people/mentos987/sounds/818888/
+
+CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+Field recordings
+Wind by Sandy Ogilvie https://freesound.org/people/Sandy-Ogilvie/sounds/847257/
+Hoist by kyles https://freesound.org/people/kyles/sounds/453359/
+Sheep bleating by earthcalling https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg
+
+Footstep recordings
+Grass by Fission9 https://freesound.org/people/Fission9/sounds/521587/
+Gravel by Fission9 https://freesound.org/people/Fission9/sounds/521588/
+Wooden floor by nicotep https://freesound.org/people/nicotep/sounds/804599/
+Stone by SecureSubset https://freesound.org/people/SecureSubset/sounds/813622/
+
+Additional asset sources
+tevy Sheep v1 https://tevy.dev/models/sheep
+MakeHuman for Blender https://github.com/makehumancommunity/mpfb2/releases/tag/v2.0.18
+Poly Haven https://polyhaven.com/
+The Great Train Robbery (1903) https://commons.wikimedia.org/wiki/File:The_Great_Train_Robbery_(1903).webm
+
+Software and font licences
+
+Three.js: LICENSE-three.txt
+Cagliostro by Matthew Desmond: assets/cagliostro-OFL.txt
+Basis Universal: assets/basis/LICENSE
